@@ -31,7 +31,7 @@ all: $(TARGET)
 -include $(DEPS)
 
 build/%.o: %.c
-	$(Q)mkdir -p $(dir $@)
+	$(Q)mkdir -p $(patsubst %/,%,$(dir $@))
 	$(Q)$(CC) $(CFLAGS) -MMD -c -o $@ $<
 
 $(TARGET): $(OBJECTS)
