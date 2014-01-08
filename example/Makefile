@@ -1,4 +1,5 @@
 MLA_INSTALL_PATH ?= /opt/microchip_solutions
+CROSS_COMPILE ?=
 
 TARGET := example
 
@@ -9,7 +10,7 @@ SOURCES := \
 	../sdl/InputDriver_sdl.c \
 	$(wildcard generated/*.c)
 
-CC := gcc
+CC := $(CROSS_COMPILE)gcc
 
 CFLAGS := \
 	-include MLA_compat.h \
@@ -20,10 +21,10 @@ CFLAGS := \
 	-I"../sdl" \
 	-I"$(MLA_INSTALL_PATH)/Microchip/Include" \
 	-I"$(MLA_INSTALL_PATH)/Board Support Package" \
-	$(shell sdl2-config --cflags)
+	$(shell $(CROSS_COMPILE)sdl2-config --cflags)
 
 LDFLAGS := \
-	$(shell sdl2-config --libs)
+	$(shell $(CROSS_COMPILE)sdl2-config --libs)
 
 OBJECTS := $(addprefix build/,$(SOURCES:.c=.o))
 DEPS := $(OBJECTS:.o=.d)
