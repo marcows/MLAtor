@@ -1,4 +1,4 @@
-MLA_INSTALL_PATH := /opt/microchip_solutions
+MLA_INSTALL_PATH ?= /opt/microchip_solutions
 
 TARGET := AppNotes
 

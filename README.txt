@@ -24,9 +24,8 @@ Compiling the example or demo projects
 ======================================
 
 $ cd example/ (or cd demoprojects/)
-$ edit Makefile (adapt MLA_INSTALL_PATH)
-$ make prepare
-$ make
+$ make MLA_INSTALL_PATH=custom_dir prepare
+$ make MLA_INSTALL_PATH=custom_dir
 
 
 Hints for using MLA with MLAtor
