@@ -10,7 +10,7 @@ CFLAGS := \
 
 include ../common.mak
 
-prepare:
+prepare_project:
 	$(Q)mkdir -p generated
 # unchanged
 	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Primitive.c"                 generated
