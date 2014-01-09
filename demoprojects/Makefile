@@ -41,7 +41,6 @@ prepare:
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AppNotesDemoResources XC32.c" generated/AppNotesDemoResources_XC32.c
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/HelloWorldFonts XC32.c"       generated/HelloWorldFonts_XC32.c
 # modified
-	$(Q)cat "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AppNotesDemo.c" \
-		| awk '/_T3Interrupt/ { exit } { print }' \
-		| sed 's/InitializeBoard()/GOLInit()/' \
+	$(Q)sed -e 's/InitializeBoard()/GOLInit()/;/_T3Interrupt/,$$d' \
+		"$(MLA_INSTALL_PATH)/Graphics/AppNotes/AppNotesDemo.c" \
 		> generated/AppNotesDemo.c
