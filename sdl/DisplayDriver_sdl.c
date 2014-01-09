@@ -88,7 +88,7 @@ void ResetDevice(void)
 		exit(EXIT_FAILURE);
 	}
 
-	renderer = SDL_CreateRenderer(window, -1, 0);
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 	if (renderer == NULL) {
 		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not create renderer: %s\n", SDL_GetError());
 		exit(EXIT_FAILURE);
