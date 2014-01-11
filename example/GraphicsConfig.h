@@ -44,6 +44,8 @@
 #define GFX_malloc(size) malloc(size)
 #define GFX_free(pObj)   free(pObj)
 
+//#define COLOR_DEPTH 8
 #define COLOR_DEPTH 16
+//#define COLOR_DEPTH 24
 
 #endif

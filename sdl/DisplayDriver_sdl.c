@@ -94,7 +94,16 @@ void ResetDevice(void)
 		exit(EXIT_FAILURE);
 	}
 
+	#if (COLOR_DEPTH == 8)
+	pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB332);
+	#elif (COLOR_DEPTH == 16)
 	pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB565);
+	#elif (COLOR_DEPTH == 24)
+	pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB888);
+	#else
+	#error color depth unsupported
+	#endif
+
 	if (pixfmt == NULL) {
 		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not allocate pixel format: %s\n", SDL_GetError());
 		exit(EXIT_FAILURE);
