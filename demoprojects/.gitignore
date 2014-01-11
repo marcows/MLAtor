@@ -1,5 +1,5 @@
 /AppNotes
 /*.exe
-/generated/
-/build/
+/generated_*/
+/build_*/
 /sdl/
