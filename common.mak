@@ -8,17 +8,24 @@ ifeq ($(OS),Windows_NT)
 SDL2_PREFIX ?= $(ProgramFiles)/SDL2/i686-w64-mingw32
 SDL2_CFLAGS := -I"$(SDL2_PREFIX)/include/SDL2" -Dmain=SDL_main
 SDL2_LDFLAGS := -L"$(SDL2_PREFIX)/bin" -L"$(SDL2_PREFIX)/lib" -lmingw32 -lSDL2main -lSDL2 -mwindows
+X = .exe
 
 else ifneq (,$(findstring mingw,$(CROSS_COMPILE)))
 # Windows cross compiling
 SDL2_CFLAGS := $(shell $(CROSS_COMPILE)sdl2-config --cflags)
 SDL2_LDFLAGS := $(patsubst %/lib,%/bin,$(shell $(CROSS_COMPILE)sdl2-config --libs))
+X = .exe
 
 else
 # Linux etc.
 SDL2_CFLAGS := $(shell $(CROSS_COMPILE)sdl2-config --cflags)
 SDL2_LDFLAGS := $(shell $(CROSS_COMPILE)sdl2-config --libs)
 endif
+
+# no file extension for executable by default
+X ?=
+
+TARGET := $(TARGET)$(X)
 
 SOURCES += \
 	../sdl/DisplayDriver_sdl.c \
