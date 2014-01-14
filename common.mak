@@ -38,9 +38,9 @@ $(TARGET): $(OBJECTS)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 
 clean:
-	$(Q)-rm $(OBJECTS)
-	$(Q)-rm $(DEPS)
+	$(Q)-rm -f $(OBJECTS)
+	$(Q)-rm -f $(DEPS)
 
 distclean: clean
-	$(Q)-rm $(TARGET)
-	$(Q)-rm -R generated build sdl
+	$(Q)-rm -f $(TARGET)
+	$(Q)-rm -f -R generated build sdl
