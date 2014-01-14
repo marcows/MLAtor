@@ -1,54 +1,13 @@
-MLA_INSTALL_PATH ?= /opt/microchip_solutions
-CROSS_COMPILE ?=
-
 TARGET := AppNotes
 
 SOURCES := \
 	DemoProjects_compat.c \
-	../sdl/DisplayDriver_sdl.c \
-	../sdl/InputDriver_sdl.c \
 	$(wildcard generated/*.c)
 
-CC := $(CROSS_COMPILE)gcc
-
 CFLAGS := \
-	-include DemoProjects_compat.h \
-	-include MLA_compat.h \
-	-Wall \
-	-I. \
-	-I"generated" \
-	-I"../MLA_glue" \
-	-I"../sdl" \
-	-I"$(MLA_INSTALL_PATH)/Microchip/Include" \
-	-I"$(MLA_INSTALL_PATH)/Board Support Package" \
-	$(shell $(CROSS_COMPILE)sdl2-config --cflags)
+	-include DemoProjects_compat.h
 
-LDFLAGS := \
-	$(shell $(CROSS_COMPILE)sdl2-config --libs)
-
-OBJECTS := $(addprefix build/,$(SOURCES:.c=.o))
-DEPS := $(OBJECTS:.o=.d)
-
-Q :=
-
-all: $(TARGET)
-
--include $(DEPS)
-
-build/%.o: %.c
-	$(Q)mkdir -p $(dir $@)
-	$(Q)$(CC) $(CFLAGS) -MMD -c -o $@ $<
-
-$(TARGET): $(OBJECTS)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^
-
-clean:
-	$(Q)-rm $(OBJECTS)
-	$(Q)-rm $(DEPS)
-
-distclean: clean
-	$(Q)-rm $(TARGET)
-	$(Q)-rm -R generated build sdl
+include ../common.mak
 
 prepare:
 	$(Q)mkdir -p generated
