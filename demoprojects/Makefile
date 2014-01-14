@@ -1,8 +1,11 @@
 TARGET := AppNotes
 
+GENERATED_DIR = generated
+BUILD_DIR = build
+
 SOURCES := \
 	DemoProjects_compat.c \
-	$(wildcard generated/*.c)
+	$(wildcard $(GENERATED_DIR)/*.c)
 
 CFLAGS := \
 	-include DemoProjects_compat.h
@@ -10,37 +13,37 @@ CFLAGS := \
 include ../common.mak
 
 prepare_project:
-	$(Q)mkdir -p generated
+	$(Q)mkdir -p $(GENERATED_DIR)
 # unchanged
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1136Demo.c"                 generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1136Demo.h"                 generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1136 Pictures XC32.h"       generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1182Demo.c"                 generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1182Demo.h"                 generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1182 Pictures XC32.h"       generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1227Demo.c"                 generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1227Demo.h"                 generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1246Demo.c"                 generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1246Demo.h"                 generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AppNotesDemoResources XC32.h" generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/GraphicsConfig.h"             generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/HardwareProfile.h"            generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/HelloWorldFonts.h"            generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/HelloWorldFonts XC32.h"       generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Primitive.c"                 generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOL.c"                       generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLSchemeDefault.c"          generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLFontDefault.c"            generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Button.c"                    generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Slider.c"                    generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/StaticText.c"                generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/TextEntry.c"                 generated
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1136Demo.c"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1136Demo.h"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1136 Pictures XC32.h"       $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1182Demo.c"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1182Demo.h"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1182 Pictures XC32.h"       $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1227Demo.c"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1227Demo.h"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1246Demo.c"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1246Demo.h"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AppNotesDemoResources XC32.h" $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/GraphicsConfig.h"             $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/HardwareProfile.h"            $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/HelloWorldFonts.h"            $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/HelloWorldFonts XC32.h"       $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Primitive.c"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOL.c"                       $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLSchemeDefault.c"          $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLFontDefault.c"            $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Button.c"                    $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Slider.c"                    $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/StaticText.c"                $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/TextEntry.c"                 $(GENERATED_DIR)
 # renamed
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1136 Pictures XC32.c"       generated/AN1136_Pictures_XC32.c
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1182 Pictures XC32.c"       generated/AN1182_Pictures_XC32.c
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AppNotesDemoResources XC32.c" generated/AppNotesDemoResources_XC32.c
-	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/HelloWorldFonts XC32.c"       generated/HelloWorldFonts_XC32.c
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1136 Pictures XC32.c"       $(GENERATED_DIR)/AN1136_Pictures_XC32.c
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AN1182 Pictures XC32.c"       $(GENERATED_DIR)/AN1182_Pictures_XC32.c
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AppNotesDemoResources XC32.c" $(GENERATED_DIR)/AppNotesDemoResources_XC32.c
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/HelloWorldFonts XC32.c"       $(GENERATED_DIR)/HelloWorldFonts_XC32.c
 # modified
 	$(Q)sed -e 's/InitializeBoard()/GOLInit()/;/_T3Interrupt/,$$d' \
 		"$(MLA_INSTALL_PATH)/Graphics/AppNotes/AppNotesDemo.c" \
-		> generated/AppNotesDemo.c
+		> $(GENERATED_DIR)/AppNotesDemo.c

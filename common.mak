@@ -35,7 +35,7 @@ CFLAGS += \
 	-include MLA_compat.h \
 	-Wall \
 	-I. \
-	-I"generated" \
+	-I"$(GENERATED_DIR)" \
 	-I"../MLA_glue" \
 	-I"../sdl" \
 	-I"$(MLA_INSTALL_PATH)/Microchip/Include" \
@@ -45,7 +45,7 @@ CFLAGS += \
 LDFLAGS := \
 	$(SDL2_LDFLAGS)
 
-OBJECTS := $(addprefix build/,$(SOURCES:.c=.o))
+OBJECTS := $(addprefix $(BUILD_DIR)/,$(SOURCES:.c=.o))
 DEPS := $(OBJECTS:.o=.d)
 
 Q :=
@@ -54,7 +54,7 @@ all: $(PROGRAM)
 
 -include $(DEPS)
 
-build/%.o: %.c
+$(BUILD_DIR)/%.o: %.c
 	$(Q)mkdir -p $(patsubst %/,%,$(dir $@))
 	$(Q)$(CC) $(CFLAGS) -MMD -c -o $@ $<
 
@@ -67,7 +67,7 @@ clean:
 
 distclean: clean
 	$(Q)-rm -f $(PROGRAM)
-	$(Q)-rm -f -R generated build sdl
+	$(Q)-rm -f -R $(GENERATED_DIR) $(BUILD_DIR) sdl
 
 prepare: prepare_project
 # workarounds for unsupported weak attribute, e.g. when building for Windows:
@@ -75,4 +75,4 @@ prepare: prepare_project
 # - remove weak attribute from remaining used functions to avoid linkage errors
 	$(Q)sed -i -e 's/__attribute__((weak)) \(Bar\)\>/UNUSED_\1/' \
 		   -e 's/__attribute__((weak))//' \
-		   generated/Primitive.c
+		   $(GENERATED_DIR)/Primitive.c

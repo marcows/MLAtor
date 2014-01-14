@@ -1,9 +1,12 @@
 TARGET := example
 
+GENERATED_DIR = generated
+BUILD_DIR = build
+
 SOURCES := \
 	Main.c \
 	Demo.c \
-	$(wildcard generated/*.c)
+	$(wildcard $(GENERATED_DIR)/*.c)
 
 CFLAGS := \
 
@@ -11,10 +14,10 @@ CFLAGS := \
 include ../common.mak
 
 prepare_project:
-	$(Q)mkdir -p generated
+	$(Q)mkdir -p $(GENERATED_DIR)
 # unchanged
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Primitive.c"                 generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOL.c"                       generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLSchemeDefault.c"          generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLFontDefault.c"            generated
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Button.c"                    generated
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Primitive.c"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOL.c"                       $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLSchemeDefault.c"          $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLFontDefault.c"            $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Button.c"                    $(GENERATED_DIR)
