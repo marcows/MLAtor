@@ -25,7 +25,7 @@ endif
 # no file extension for executable by default
 X ?=
 
-TARGET := $(TARGET)$(X)
+PROGRAM := $(TARGET)$(X)
 
 SOURCES += \
 	../sdl/DisplayDriver_sdl.c \
@@ -50,7 +50,7 @@ DEPS := $(OBJECTS:.o=.d)
 
 Q :=
 
-all: $(TARGET)
+all: $(PROGRAM)
 
 -include $(DEPS)
 
@@ -58,7 +58,7 @@ build/%.o: %.c
 	$(Q)mkdir -p $(patsubst %/,%,$(dir $@))
 	$(Q)$(CC) $(CFLAGS) -MMD -c -o $@ $<
 
-$(TARGET): $(OBJECTS)
+$(PROGRAM): $(OBJECTS)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 
 clean:
@@ -66,7 +66,7 @@ clean:
 	$(Q)-rm -f $(DEPS)
 
 distclean: clean
-	$(Q)-rm -f $(TARGET)
+	$(Q)-rm -f $(PROGRAM)
 	$(Q)-rm -f -R generated build sdl
 
 prepare: prepare_project
