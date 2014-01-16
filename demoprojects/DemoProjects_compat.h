@@ -6,4 +6,11 @@
 #define DISP_HOR_RESOLUTION 320
 #define DISP_VER_RESOLUTION 240
 
+#if defined(TARGET_AppNotes)
+  #define COMPAT_DUMMY_EVENT_POLL
+
+#elif defined(TARGET_ObjectLayer)
+  #define MEB_BOARD
+#endif
+
 #endif
