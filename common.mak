@@ -42,7 +42,7 @@ CFLAGS += \
 	-I"$(MLA_INSTALL_PATH)/Board Support Package" \
 	$(SDL2_CFLAGS)
 
-LDFLAGS := \
+LDFLAGS += \
 	$(SDL2_LDFLAGS)
 
 OBJECTS := $(addprefix $(BUILD_DIR)/,$(SOURCES:.c=.o))

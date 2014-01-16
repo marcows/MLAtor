@@ -10,6 +10,8 @@ SOURCES := \
 CFLAGS := \
 	-include DemoProjects_compat.h
 
+LDFLAGS := \
+
 include ../common.mak
 
 prepare_project:

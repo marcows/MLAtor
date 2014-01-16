@@ -10,6 +10,7 @@ SOURCES := \
 
 CFLAGS := \
 
+LDFLAGS := \
 
 include ../common.mak
 
