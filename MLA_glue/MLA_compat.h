@@ -2,7 +2,7 @@
 #define _MLA_COMPAT_H
 
 // unknown qualifier for program memory
-#define __prog__
+#define __prog__ const
 
 // for compiling GOLFontDefault, this switch is not used anywhere else except in the unused Compiler.h
 #define __C32__
