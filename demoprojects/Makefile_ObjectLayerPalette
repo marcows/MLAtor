@@ -1,0 +1,59 @@
+TARGET := ObjectLayerPalette
+
+GENERATED_DIR = generated_$(TARGET)
+BUILD_DIR = build_$(TARGET)
+
+SOURCES := \
+	DemoProjects_compat.c \
+	$(wildcard $(GENERATED_DIR)/*.c)
+
+CFLAGS := \
+	-DTARGET_$(TARGET) \
+	-include DemoProjects_compat.h
+
+LDFLAGS := \
+	-lm
+
+include ../common.mak
+
+prepare_project:
+	$(Q)mkdir -p $(GENERATED_DIR)
+# unchanged
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/CustomControlDemo.c"       $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/CustomControlDemo.h"       $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/GOLPaletteSchemeDefault.c" $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/GraphicsConfig.h"          $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/HardwareProfile.h"         $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/InternalResourceXC32.c"    $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/InternalResourceXC32.h"    $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/MainDemo.h"                $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/MainDemoStrings.h"         $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/PaletteColorDefines.h"     $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/rtcc.c"                    $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/rtcc.h"                    $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/SideButtons.c"             $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/SideButtons.h"             $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Primitive.c"                          $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOL.c"                                $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Palette.c"                            $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLSchemeDefault.c"                   $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLFontDefault.c"                     $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Button.c"                             $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Slider.c"                             $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Meter.c"                              $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/RoundDial.c"                          $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/RadioButton.c"                        $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/DigitalMeter.c"                       $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/ListBox.c"                            $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/StaticText.c"                         $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/EditBox.c"                            $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GroupBox.c"                           $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/ProgressBar.c"                        $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/CheckBox.c"                           $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Window.c"                             $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Picture.c"                            $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/TextEntry.c"                          $(GENERATED_DIR)
+# modified
+	$(Q)sed -e 's/InitializeBoard()//;/_T4Interrupt/,$$d' \
+		"$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/MainDemo.c" \
+		> $(GENERATED_DIR)/MainDemo.c

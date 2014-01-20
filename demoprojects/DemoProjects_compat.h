@@ -11,6 +11,9 @@
 
 #elif defined(TARGET_ObjectLayer)
   #define MEB_BOARD
+
+#elif defined(TARGET_ObjectLayerPalette)
+  #define GFX_PICTAIL_LCC
 #endif
 
 #endif
