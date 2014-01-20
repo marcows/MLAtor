@@ -73,6 +73,6 @@ prepare: prepare_project
 # workarounds for unsupported weak attribute, e.g. when building for Windows:
 # - rename unused weak function to avoid runtime problems due to missing invocation
 # - remove weak attribute from remaining used functions to avoid linkage errors
-	$(Q)sed -i -e 's/__attribute__((weak)) \(Bar\)\>/UNUSED_\1/' \
+	$(Q)sed -i -e 's/__attribute__((weak)) \(Bar\|SetClipRgn\|SetClip\)\>/UNUSED_\1/' \
 		   -e 's/__attribute__((weak))//' \
 		   $(GENERATED_DIR)/Primitive.c

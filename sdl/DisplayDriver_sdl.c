@@ -139,6 +139,36 @@ WORD IsDeviceBusy(void)
 	return 0;
 }
 
+void SetClipRgn(SHORT left, SHORT top, SHORT right, SHORT bottom)
+{
+	_clipLeft = left;
+	_clipTop = top;
+	_clipRight = right;
+	_clipBottom = bottom;
+
+	if (_clipRgn) {
+		SetClip(_clipRgn);
+	}
+}
+
+void SetClip(BYTE control)
+{
+	_clipRgn = control;
+
+	if (_clipRgn) {
+		SDL_Rect rect;
+
+		rect.x = _clipLeft;
+		rect.y = _clipTop;
+		rect.w = _clipRight - _clipLeft + 1;
+		rect.h = _clipBottom - _clipTop + 1;
+
+		SDL_RenderSetClipRect(renderer, &rect);
+	} else {
+		SDL_RenderSetClipRect(renderer, NULL);
+	}
+}
+
 /* accelerated functions to avoid primitives using PutPixel() */
 
 WORD Bar(SHORT left, SHORT top, SHORT right, SHORT bottom)
