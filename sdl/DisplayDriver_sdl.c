@@ -19,6 +19,11 @@ SHORT       _clipBottom;
 // Color
 GFX_COLOR    _color;
 
+#ifdef USE_TRANSPARENT_COLOR
+GFX_COLOR    _colorTransparent;
+SHORT        _colorTransparentEnable;
+#endif
+
 // SDL
 static SDL_Window *window;
 static SDL_Renderer *renderer;
@@ -168,6 +173,15 @@ void SetClip(BYTE control)
 		SDL_RenderSetClipRect(renderer, NULL);
 	}
 }
+
+#ifdef USE_TRANSPARENT_COLOR
+void TransparentColorEnable(GFX_COLOR color)
+{
+	_colorTransparent = color;
+	_colorTransparentEnable = TRANSPARENT_COLOR_ENABLE;
+
+}
+#endif
 
 /* accelerated functions to avoid primitives using PutPixel() */
 
