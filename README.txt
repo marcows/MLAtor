@@ -18,6 +18,7 @@ Currently working:
 Known problems with integrated demo projects:
 - AppNotes:
   - AN1182: segmentation fault when changing to Hindi or Thai language
+    (only for Linux, Windows native or cross compiled works fine)
 
 
 Compiling the example or demo projects
