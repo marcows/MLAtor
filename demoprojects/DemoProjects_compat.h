@@ -8,16 +8,23 @@
 
 #if defined(TARGET_AppNotes)
   #define COMPAT_DUMMY_EVENT_POLL
+  #define COMPAT_TICK_COUNTER
 
 #elif defined(TARGET_ColorDepth)
   #define CFG_INCLUDE_MPLAB_X
   #define COLOR_DEPTH 4
+  #define COMPAT_TICK_COUNTER
 
 #elif defined(TARGET_ObjectLayer)
   #define MEB_BOARD
+  #define COMPAT_TICK_COUNTER
 
 #elif defined(TARGET_ObjectLayerPalette)
   #define GFX_PICTAIL_LCC
+  #define COMPAT_TICK_COUNTER
+
+#elif defined(TARGET_PrimitiveLayer)
+  #define COMPAT_GENERAL_EVENTS_HOOK
 #endif
 
 #endif

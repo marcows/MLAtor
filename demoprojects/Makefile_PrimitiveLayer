@@ -1,0 +1,31 @@
+TARGET := PrimitiveLayer
+
+GENERATED_DIR = generated_$(TARGET)
+BUILD_DIR = build_$(TARGET)
+
+SOURCES := \
+	DemoProjects_compat.c \
+	$(wildcard $(GENERATED_DIR)/*.c)
+
+CFLAGS := \
+	-DTARGET_$(TARGET) \
+	-include DemoProjects_compat.h
+
+LDFLAGS := \
+
+include ../common.mak
+
+prepare_project:
+	$(Q)mkdir -p $(GENERATED_DIR)
+# unchanged
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Primitive Layer/GraphicsConfig.h"         $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Primitive Layer/HardwareProfile.h"        $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Primitive Layer/InternalResourceXC32.c"   $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Primitive Layer/InternalResourceXC32.h"   $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Primitive Layer/MainDemo.h"               $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Primitive.c"                    $(GENERATED_DIR)
+# modified
+	$(Q)sed -e 's/InitializeBoard()/InitGraph()/' \
+		-e ' /void InitializeBoard(void)/,$$d' \
+		"$(MLA_INSTALL_PATH)/Graphics/Primitive Layer/MainDemo.c" \
+		> $(GENERATED_DIR)/MainDemo.c
