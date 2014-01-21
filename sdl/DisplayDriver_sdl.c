@@ -359,6 +359,12 @@ void HandleGeneralEvent(SDL_Event *event)
 	case SDL_KEYDOWN:
 	case SDL_KEYUP:
 	case SDL_TEXTINPUT:
+	case SDL_MOUSEWHEEL:
+#ifndef USE_TOUCHSCREEN
+	case SDL_MOUSEBUTTONDOWN:
+	case SDL_MOUSEBUTTONUP:
+	case SDL_MOUSEMOTION:
+#endif
 		// event ignored
 		break;
 
