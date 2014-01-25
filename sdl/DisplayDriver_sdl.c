@@ -7,6 +7,18 @@
 
 #include "Graphics/Graphics.h"
 
+#ifdef USE_PALETTE
+#if (COLOR_DEPTH == 1)
+  #define MAX_NUM_PALETTE_ENTRIES 2
+#elif (COLOR_DEPTH == 4)
+  #define MAX_NUM_PALETTE_ENTRIES 16
+#elif (COLOR_DEPTH == 8)
+  #define MAX_NUM_PALETTE_ENTRIES 256
+#else
+  #error color depth unsupported with palette
+#endif
+#endif
+
 // Clipping region control
 SHORT       _clipRgn;
 
@@ -24,11 +36,28 @@ GFX_COLOR    _colorTransparent;
 SHORT        _colorTransparentEnable;
 #endif
 
+#ifdef USE_PALETTE
+extern void *_palette;
+extern BYTE PaletteBpp;
+extern BYTE blPaletteChangeError;
+extern void *pPendingPalette;
+extern WORD PendingStartEntry;
+extern WORD PendingLength;
+#endif
+
 // SDL
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 static SDL_PixelFormat *pixfmt;
 static Uint32 redrawEvent;
+
+#ifdef USE_PALETTE
+static SDL_Palette *palette;
+#if (COLOR_DEPTH == 8)
+// pixel formats can be switched to toggle between indexed and RGB colors
+static SDL_PixelFormat *pixfmt_idx, *pixfmt_rgb;
+#endif
+#endif
 
 /* local helper functions */
 static void Cleanup(void);
@@ -37,6 +66,22 @@ static void ScheduleScreenUpdate(void);
 
 static void Cleanup(void)
 {
+	#ifdef USE_PALETTE
+	if (palette != NULL)
+		SDL_FreePalette(palette);
+
+	#if (COLOR_DEPTH == 8)
+	// prevent double freeing
+	if (pixfmt_idx != pixfmt) {
+		if (pixfmt_idx != NULL)
+			SDL_FreeFormat(pixfmt_idx);
+	} else {
+		if (pixfmt_rgb != NULL)
+			SDL_FreeFormat(pixfmt_rgb);
+	}
+	#endif
+	#endif
+
 	if (pixfmt != NULL)
 		SDL_FreeFormat(pixfmt);
 
@@ -114,6 +159,26 @@ void ResetDevice(void)
 		exit(EXIT_FAILURE);
 	}
 
+	#ifdef USE_PALETTE
+	#if (COLOR_DEPTH == 8)
+	pixfmt_rgb = pixfmt;
+
+	pixfmt_idx = SDL_AllocFormat(SDL_PIXELFORMAT_INDEX8);
+	if (pixfmt_idx == NULL) {
+		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not allocate indexed pixel format: %s\n", SDL_GetError());
+		exit(EXIT_FAILURE);
+	}
+	#endif
+
+	palette = SDL_AllocPalette(MAX_NUM_PALETTE_ENTRIES);
+	if (palette == NULL) {
+		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not allocate palette: %s\n", SDL_GetError());
+		exit(EXIT_FAILURE);
+	}
+
+	PaletteBpp = COLOR_DEPTH;
+	#endif
+
 	redrawEvent = SDL_RegisterEvents(1);
 	if (redrawEvent == ((Uint32)-1)) {
 		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not register user events: %s\n", SDL_GetError());
@@ -180,6 +245,74 @@ void TransparentColorEnable(GFX_COLOR color)
 	_colorTransparent = color;
 	_colorTransparentEnable = TRANSPARENT_COLOR_ENABLE;
 
+}
+#endif
+
+#ifdef USE_PALETTE
+void EnablePalette(void)
+{
+	#if (COLOR_DEPTH == 8)
+	pixfmt = pixfmt_idx;
+	#endif
+
+	SDL_SetPixelFormatPalette(pixfmt, palette);
+}
+
+void DisablePalette(void)
+{
+	SDL_SetPixelFormatPalette(pixfmt, NULL);
+
+	#if (COLOR_DEPTH == 8)
+	// fall back to RGB instead of an empty palette, which would lead to a white screen
+	pixfmt = pixfmt_rgb;
+	#endif
+}
+
+BYTE IsPaletteEnabled(void)
+{
+	return (pixfmt->palette != NULL);
+}
+
+BYTE SetPaletteBpp(BYTE bpp)
+{
+	return (bpp != COLOR_DEPTH);
+}
+
+BYTE SetPaletteFlash(PALETTE_ENTRY *pPaletteEntry, WORD startEntry, WORD length)
+{
+	int i;
+	SDL_PixelFormat *pe_pixfmt; // used to transform palette entries to RGB
+	static SDL_Color colors[MAX_NUM_PALETTE_ENTRIES];
+
+	if ((pPaletteEntry == NULL) || ((startEntry + length) > MAX_NUM_PALETTE_ENTRIES)) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Palette NULL or entry overflow: %u (maximum %u)\n",
+								startEntry + length, MAX_NUM_PALETTE_ENTRIES);
+		return 1;
+	}
+
+	pe_pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB565);
+	if (pe_pixfmt == NULL) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not allocate pixel format: %s\n", SDL_GetError());
+		return 1;
+	}
+
+	for (i = 0; i < length; i++)
+		SDL_GetRGB(pPaletteEntry[i].value, pe_pixfmt, &(colors[i].r), &(colors[i].g), &(colors[i].b));
+
+	SDL_FreeFormat(pe_pixfmt);
+
+	return !!SDL_SetPaletteColors(palette, colors, startEntry, length);
+}
+
+void StartVBlankInterrupt(void)
+{
+	if (pPendingPalette != NULL) {
+		blPaletteChangeError = SetPalette(pPendingPalette, PendingStartEntry, PendingLength);
+
+		if (!blPaletteChangeError) {
+			_palette = pPendingPalette;
+		}
+	}
 }
 #endif
 
