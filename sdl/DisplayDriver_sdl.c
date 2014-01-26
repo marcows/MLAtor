@@ -144,7 +144,11 @@ void ResetDevice(void)
 		exit(EXIT_FAILURE);
 	}
 
-	#if (COLOR_DEPTH == 8)
+	#if (COLOR_DEPTH == 1)
+	pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_INDEX1LSB);
+	#elif (COLOR_DEPTH == 4)
+	pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_INDEX4LSB);
+	#elif (COLOR_DEPTH == 8)
 	pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB332);
 	#elif (COLOR_DEPTH == 16)
 	pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB565);
