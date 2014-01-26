@@ -11,7 +11,7 @@
 
 #elif defined(TARGET_ColorDepth)
   #define CFG_INCLUDE_MPLAB_X
-  #define COLOR_DEPTH 8
+  #define COLOR_DEPTH 4
 
 #elif defined(TARGET_ObjectLayer)
   #define MEB_BOARD
