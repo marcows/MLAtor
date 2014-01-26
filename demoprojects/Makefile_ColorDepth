@@ -34,6 +34,6 @@ prepare_project:
 		> $(GENERATED_DIR)/MainDemo.c
 # created
 	$(Q)$(GRC) -XML "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/Resources/4BPP/InternalResourceColorDepth_4BPPMode.xml" -B XC32 -O $(GENERATED_DIR)/Resources.c
-	$(Q)sed -n -e '/Screen1_[148]BPP_Palette_Data/,$$p;' \
+	$(Q)sed -n -e '/Screen1\?_[148]BPP_Palette_Data/,$$p;' \
 		"$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/InternalResourceXC16_4BPPMode.c" \
 		>> $(GENERATED_DIR)/Resources.c
