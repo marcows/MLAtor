@@ -1,0 +1,39 @@
+TARGET := ColorDepth
+
+GENERATED_DIR = generated_$(TARGET)
+BUILD_DIR = build_$(TARGET)
+
+SOURCES := \
+	DemoProjects_compat.c \
+	$(wildcard $(GENERATED_DIR)/*.c)
+
+CFLAGS := \
+	-DTARGET_$(TARGET) \
+	-include DemoProjects_compat.h
+
+LDFLAGS := \
+
+include ../common.mak
+
+prepare_project:
+	$(Q)mkdir -p $(GENERATED_DIR)
+# unchanged
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/GraphicsConfig.h"      $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/HardwareProfile.h"     $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/MainDemo.h"            $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/PaletteColorDefines.h" $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Primitive.c"                       $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOL.c"                             $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Palette.c"                         $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLSchemeDefault.c"                $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Button.c"                          $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Picture.c"                         $(GENERATED_DIR)
+# modified
+	$(Q)sed -e 's/BoardInit()\|SST25Init(.*)\|TickInit()\|TouchInit(.*)\|SetBlackScreen()\|SetNormalScreen()//; /_T4Interrupt/,/^}/d; /^void TickInit(void)\r/,/^}/d; /^void BoardInit(void)\r/,/^}/d' \
+		"$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/MainDemo.c" \
+		> $(GENERATED_DIR)/MainDemo.c
+# created
+	$(Q)$(GRC) -XML "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/Resources/8BPP/InternalResourceColorDepth_8BPPMode.xml" -B XC32 -O $(GENERATED_DIR)/Resources.c
+	$(Q)sed -n -e '/Screen1_[148]BPP_Palette_Data/,$$p;' \
+		"$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/InternalResourceXC16_8BPPMode.c" \
+		>> $(GENERATED_DIR)/Resources.c
