@@ -31,8 +31,10 @@ prepare_project:
 # modified
 	$(Q)sed -e 's/BoardInit()\|SST25Init(.*)\|TickInit()\|TouchInit(.*)\|SetBlackScreen()\|SetNormalScreen()//' \
 		-e ' /_T4Interrupt/,/^}/d' \
-		-e ' /^void TickInit(void)\r/,/^}/d' \
-		-e ' /^void BoardInit(void)\r/,/^}/d' \
+		-e ' /^void TickInit(void);/d' \
+		-e ' /^void TickInit(void)/,/^}/d' \
+		-e ' /^void BoardInit(void);/d' \
+		-e ' /^void BoardInit(void)/,/^}/d' \
 		"$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/MainDemo.c" \
 		> $(GENERATED_DIR)/MainDemo.c
 # created
