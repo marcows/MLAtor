@@ -47,6 +47,7 @@ prepare_project:
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/AppNotesDemoResources XC32.c" $(GENERATED_DIR)/AppNotesDemoResources_XC32.c
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/HelloWorldFonts XC32.c"       $(GENERATED_DIR)/HelloWorldFonts_XC32.c
 # modified
-	$(Q)sed -e 's/InitializeBoard()/GOLInit()/;/_T3Interrupt/,$$d' \
+	$(Q)sed -e 's/InitializeBoard()/GOLInit()/' \
+		-e ' /_T3Interrupt/,$$d' \
 		"$(MLA_INSTALL_PATH)/Graphics/AppNotes/AppNotesDemo.c" \
 		> $(GENERATED_DIR)/AppNotesDemo.c

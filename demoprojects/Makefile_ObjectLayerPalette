@@ -54,6 +54,7 @@ prepare_project:
 	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Picture.c"                            $(GENERATED_DIR)
 #	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/TextEntry.c"                          $(GENERATED_DIR)
 # modified
-	$(Q)sed -e 's/InitializeBoard()//;/_T4Interrupt/,$$d' \
+	$(Q)sed -e 's/InitializeBoard()//' \
+		-e ' /_T4Interrupt/,$$d' \
 		"$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/MainDemo.c" \
 		> $(GENERATED_DIR)/MainDemo.c
