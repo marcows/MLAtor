@@ -52,6 +52,11 @@ extern WORD PendingStartEntry;
 extern WORD PendingLength;
 #endif
 
+#ifdef USE_DOUBLE_BUFFERING
+BYTE blInvalidateAll;
+volatile BYTE blDisplayUpdatePending;
+#endif
+
 // SDL
 static SDL_Window *window;
 static SDL_Renderer *renderer;
@@ -337,6 +342,28 @@ void StartVBlankInterrupt(void)
 			_palette = pPendingPalette;
 		}
 	}
+}
+#endif
+
+#ifdef USE_DOUBLE_BUFFERING
+void SwitchOnDoubleBuffering(void)
+{
+}
+
+void SwitchOffDoubleBuffering(void)
+{
+}
+
+void InvalidateRectangle(WORD left, WORD top, WORD right, WORD bottom)
+{
+}
+
+void RequestDisplayUpdate(void)
+{
+}
+
+void UpdateDisplayNow(void)
+{
 }
 #endif
 

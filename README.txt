@@ -58,7 +58,7 @@ Implemented:
 - USE_TOUCHSCREEN
 
 Planned:
-- USE_DOUBLE_BUFFERING
+- USE_DOUBLE_BUFFERING (currently stubs for building and running)
 - USE_TRANSITION_EFFECTS
 - USE_ANTIALIASED_FONTS -> GetPixel()
 - USE_ALPHABLEND_LITE -> GetPixel()
