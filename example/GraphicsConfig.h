@@ -1,7 +1,6 @@
 #ifndef _GRAPHICSCONFIG_H
 #define _GRAPHICSCONFIG_H
 
-// display problems without this:
 #define USE_NONBLOCKING_CONFIG
 
 //#define USE_PALETTE
