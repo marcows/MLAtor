@@ -1,3 +1,5 @@
+.PHONY: all clean distclean prepare
+
 all clean distclean prepare:
 	$(MAKE) -f Makefile_AppNotes $@
 	$(MAKE) -f Makefile_ColorDepth $@

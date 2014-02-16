@@ -51,6 +51,8 @@ DEPS := $(OBJECTS:.o=.d)
 
 Q :=
 
+.PHONY: all clean distclean prepare prepare_project
+
 all: $(PROGRAM)
 
 -include $(DEPS)
