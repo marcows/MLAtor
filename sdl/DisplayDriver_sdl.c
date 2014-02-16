@@ -189,6 +189,17 @@ void ResetDevice(void)
 		exit(EXIT_FAILURE);
 	}
 
+	SDL_EventState(SDL_KEYDOWN, SDL_IGNORE);
+	SDL_EventState(SDL_KEYUP, SDL_IGNORE);
+	SDL_EventState(SDL_TEXTINPUT, SDL_IGNORE);
+	SDL_EventState(SDL_MOUSEWHEEL, SDL_IGNORE);
+
+	#ifndef USE_TOUCHSCREEN
+	SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
+	SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
+	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
+	#endif
+
 	SetColor(BLACK);
 	ActivateCurrentColor();
 	SDL_RenderClear(renderer);
@@ -354,18 +365,6 @@ void HandleGeneralEvent(SDL_Event *event)
 
 	case SDL_QUIT:
 		exit(EXIT_SUCCESS);
-		break;
-
-	case SDL_KEYDOWN:
-	case SDL_KEYUP:
-	case SDL_TEXTINPUT:
-	case SDL_MOUSEWHEEL:
-#ifndef USE_TOUCHSCREEN
-	case SDL_MOUSEBUTTONDOWN:
-	case SDL_MOUSEBUTTONUP:
-	case SDL_MOUSEMOTION:
-#endif
-		// event ignored
 		break;
 
 	default:
