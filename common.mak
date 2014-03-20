@@ -35,6 +35,7 @@ SOURCES += \
 CFLAGS += \
 	-include MLA_compat.h \
 	-Wall \
+	-g \
 	-I. \
 	-I"$(GENERATED_DIR)" \
 	-I"../MLA_glue" \
