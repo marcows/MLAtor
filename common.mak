@@ -80,4 +80,5 @@ prepare: prepare_project
 	$(Q)sed -e 's/__attribute__((weak)) \(Bar\|SetClipRgn\|SetClip\)\>/UNUSED_\1/' \
 		-e 's/__attribute__((weak))//' \
 		$(GENERATED_DIR)/Primitive.c > $(GENERATED_DIR)/Primitive.c.tmp
-	$(Q)mv $(GENERATED_DIR)/Primitive.c.tmp $(GENERATED_DIR)/Primitive.c
+	$(Q)cp $(GENERATED_DIR)/Primitive.c.tmp $(GENERATED_DIR)/Primitive.c
+	$(Q)rm -f $(GENERATED_DIR)/Primitive.c.tmp
