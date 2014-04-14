@@ -1,5 +1,5 @@
 MLA_INSTALL_PATH ?= /opt/microchip_solutions
-GRC ?= java -jar $(MLA_INSTALL_PATH)/Microchip/Graphics/bin/grc/grc.jar
+GRC ?= java -jar "$(MLA_INSTALL_PATH)/Microchip/Graphics/bin/grc/grc.jar"
 CROSS_COMPILE ?=
 
 CC := $(CROSS_COMPILE)gcc
