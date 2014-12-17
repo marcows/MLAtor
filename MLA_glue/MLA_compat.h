@@ -4,8 +4,8 @@
 // unknown qualifier for program memory
 #define __prog__ const
 
-// for compiling GOLFontDefault, this switch is not used anywhere else except in the unused Compiler.h
-#define __C32__
+// for compiling GOLFontDefault, this switch is not used anywhere else
+#define __XC32__
 
 // No Operation, defined in Compiler.h
 #define Nop()
