@@ -33,7 +33,6 @@ prepare_project:
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/HardwareProfile.h"            $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/HelloWorldFonts.h"            $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/AppNotes/HelloWorldFonts XC32.h"       $(GENERATED_DIR)
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Primitive.c"                 $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOL.c"                       $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLSchemeDefault.c"          $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLFontDefault.c"            $(GENERATED_DIR)

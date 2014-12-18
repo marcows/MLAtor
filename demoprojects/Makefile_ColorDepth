@@ -22,7 +22,6 @@ prepare_project:
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/HardwareProfile.h"     $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/MainDemo.h"            $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/PaletteColorDefines.h" $(GENERATED_DIR)
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Primitive.c"                       $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOL.c"                             $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Palette.c"                         $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLSchemeDefault.c"                $(GENERATED_DIR)

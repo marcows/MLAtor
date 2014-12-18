@@ -33,7 +33,6 @@ prepare_project:
 #	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/rtcc.h"                    $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/SideButtons.c"             $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Object Layer Palette/SideButtons.h"             $(GENERATED_DIR)
-	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Primitive.c"                          $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOL.c"                                $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Palette.c"                            $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLSchemeDefault.c"                   $(GENERATED_DIR)

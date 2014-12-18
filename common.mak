@@ -81,6 +81,5 @@ prepare: prepare_project
 # - remove weak attribute from remaining used functions to avoid linkage errors
 	$(Q)sed -e 's/__attribute__((weak)) \(Bar\|SetClipRgn\|SetClip\)\>/UNUSED_\1/' \
 		-e 's/__attribute__((weak))//' \
-		$(GENERATED_DIR)/Primitive.c > $(GENERATED_DIR)/Primitive.c.tmp
-	$(Q)cp $(GENERATED_DIR)/Primitive.c.tmp $(GENERATED_DIR)/Primitive.c
-	$(Q)rm -f $(GENERATED_DIR)/Primitive.c.tmp
+		"$(MLA_INSTALL_PATH)/Microchip/Graphics/Primitive.c" \
+		> $(GENERATED_DIR)/Primitive.c
