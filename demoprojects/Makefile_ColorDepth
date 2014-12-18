@@ -1,5 +1,8 @@
 TARGET := ColorDepth
 
+# put resources (bitmaps, fonts, palettes) into emulated external memory
+#EXTERNAL_MEMORY = x
+
 GENERATED_DIR = generated_$(TARGET)
 BUILD_DIR = build_$(TARGET)
 
@@ -11,6 +14,10 @@ CFLAGS := \
 	-DTARGET_$(TARGET) \
 	-include DemoProjects_compat.h
 
+ifdef EXTERNAL_MEMORY
+CFLAGS += -DEXTERNAL_MEMORY
+endif
+
 LDFLAGS := \
 
 include ../common.mak
@@ -18,7 +25,9 @@ include ../common.mak
 prepare_project:
 	$(Q)mkdir -p $(GENERATED_DIR)
 # unchanged
+ifndef EXTERNAL_MEMORY
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/GraphicsConfig.h"      $(GENERATED_DIR)
+endif
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/HardwareProfile.h"     $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/MainDemo.h"            $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/PaletteColorDefines.h" $(GENERATED_DIR)
@@ -34,10 +43,28 @@ prepare_project:
 		-e ' /^void TickInit(void)/,/^}/d' \
 		-e ' /^void BoardInit(void);/d' \
 		-e ' /^void BoardInit(void)/,/^}/d' \
+		-e 's/SCR\([12]\)_PALETTE\.header\.length/Screen\1_4BPP_Palette_SIZE \/ 2/' \
 		"$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/MainDemo.c" \
 		> $(GENERATED_DIR)/MainDemo.c
+ifdef EXTERNAL_MEMORY
+	$(Q)sed -e 's/FONTDEFAULT/FONTDEFAULT_EXTERNAL/' \
+		"$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/GraphicsConfig.h" \
+		> $(GENERATED_DIR)/GraphicsConfig.h
+endif
 # created
+ifdef EXTERNAL_MEMORY
+	$(Q)$(GRC) -XML "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/Resources/4BPP/InternalResourceColorDepth_4BPPMode.xml" -F H -O $(GENERATED_DIR)/Resources.hex
+	$(Q)printf "const unsigned char externalMemoryData[] = {\n" > $(GENERATED_DIR)/Resources.hex.c
+	$(Q)srec_cat -disable-sequence-warnings $(GENERATED_DIR)/Resources.hex -intel -o - -hex-dump \
+		| sed -e 's/^[0-9a-fA-F]*://' \
+		      -e 's/#.*//' \
+		      -e 's/   / FF/g' \
+		      -e 's/\([0-9a-fA-F]\{2\}\) /0x\1,/g' \
+		>> $(GENERATED_DIR)/Resources.hex.c
+	$(Q)printf "};" >> $(GENERATED_DIR)/Resources.hex.c
+else
 	$(Q)$(GRC) -XML "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/Resources/4BPP/InternalResourceColorDepth_4BPPMode.xml" -B XC32 -O $(GENERATED_DIR)/Resources.c
 	$(Q)sed -n -e '/Screen1\?_[148]BPP_Palette_Data/,$$p;' \
 		"$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/InternalResourceXC16_4BPPMode.c" \
 		>> $(GENERATED_DIR)/Resources.c
+endif

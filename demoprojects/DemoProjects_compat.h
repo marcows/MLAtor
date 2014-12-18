@@ -13,6 +13,11 @@
 #elif defined(TARGET_ColorDepth)
   #define CFG_INCLUDE_MPLAB_X
   #define COLOR_DEPTH 4
+  #ifdef EXTERNAL_MEMORY
+    #define USE_PALETTE_EXTERNAL
+    #define USE_FONT_EXTERNAL
+    #define USE_BITMAP_EXTERNAL
+  #endif
   #define COMPAT_TICK_COUNTER
 
 #elif defined(TARGET_ExternalMemory)
