@@ -1,11 +1,8 @@
-MLA_INSTALL_PATH ?= /opt/microchip_solutions
-GRC ?= java -jar "$(MLA_INSTALL_PATH)/Microchip/Graphics/bin/grc/grc.jar"
 CROSS_COMPILE ?=
-
-CC := $(CROSS_COMPILE)gcc
 
 ifeq ($(OS),Windows_NT)
 # Windows native using cmd.exe or MinGW Shell
+MLA_INSTALL_PATH ?= C:/Program Files (x86)/Microchip/microchip_solutions_v2013-06-15
 SDL2_PREFIX ?= $(ProgramFiles)/SDL2/i686-w64-mingw32
 SDL2_CFLAGS := -I"$(SDL2_PREFIX)/include/SDL2" -Dmain=SDL_main
 SDL2_LDFLAGS := -L"$(SDL2_PREFIX)/bin" -L"$(SDL2_PREFIX)/lib" -lmingw32 -lSDL2main -lSDL2 -mwindows
@@ -13,15 +10,20 @@ X = .exe
 
 else ifneq (,$(findstring mingw,$(CROSS_COMPILE)))
 # Windows cross compiling
+MLA_INSTALL_PATH ?= /opt/microchip_solutions
 SDL2_CFLAGS := $(shell $(CROSS_COMPILE)sdl2-config --cflags)
 SDL2_LDFLAGS := $(patsubst %/lib,%/bin,$(shell $(CROSS_COMPILE)sdl2-config --libs))
 X = .exe
 
 else
 # Linux etc.
+MLA_INSTALL_PATH ?= /opt/microchip_solutions
 SDL2_CFLAGS := $(shell $(CROSS_COMPILE)sdl2-config --cflags)
 SDL2_LDFLAGS := $(shell $(CROSS_COMPILE)sdl2-config --libs)
 endif
+
+GRC ?= java -jar "$(MLA_INSTALL_PATH)/Microchip/Graphics/bin/grc/grc.jar"
+CC := $(CROSS_COMPILE)gcc
 
 # no file extension for executable by default
 X ?=
