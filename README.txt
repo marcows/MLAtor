@@ -28,8 +28,16 @@ $ make MLA_INSTALL_PATH=custom_dir
 Hints for using MLA with MLAtor
 ===============================
 
-- set Compiler Type to C32/XC32 for generating resources with Graphics Resource
-  Converter
+- set Compiler Type to C32/XC32 when generating resources with Graphics
+  Resource Converter in "Internal Flash" format, for "External Flash" or
+  "Binary" format there is no difference and C30/XC16 works as well
+
+- external memory can be emulated by writing the content of the .hex or .bin
+  resource file into the array "const unsigned char externalMemoryData[]"
+
+- external memory resources have to be generated with start address set to 0
+
+- only 1 external memory device is allowed, the device ID is ignored
 
 
 Features
@@ -40,6 +48,9 @@ Implemented:
 - USE_PALETTE
 - USE_TRANSPARENT_COLOR
 - Clipping
+- USE_PALETTE_EXTERNAL
+- USE_FONT_EXTERNAL
+- USE_BITMAP_EXTERNAL
 - USE_TOUCHSCREEN
 
 Planned:
@@ -48,7 +59,6 @@ Planned:
 - USE_ANTIALIASED_FONTS -> GetPixel()
 - USE_ALPHABLEND_LITE -> GetPixel()
 - USE_ALPHABLEND
-- USE_PALETTE_EXTERNAL, USE_FONT_EXTERNAL, USE_BITMAP_EXTERNAL -> ExternalMemoryCallback()
 - USE_KEYBOARD
 - USE_MOUSE
 

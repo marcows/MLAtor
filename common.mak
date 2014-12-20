@@ -31,6 +31,7 @@ X ?=
 PROGRAM := $(TARGET)$(X)
 
 SOURCES += \
+	../MLA_glue/ExternalMemory.c \
 	../sdl/DisplayDriver_sdl.c \
 	../sdl/InputDriver_sdl.c
 
@@ -73,7 +74,7 @@ clean:
 
 distclean: clean
 	$(Q)-rm -f $(PROGRAM)
-	$(Q)-rm -f -R $(GENERATED_DIR) $(BUILD_DIR) sdl
+	$(Q)-rm -f -R $(GENERATED_DIR) $(BUILD_DIR) sdl MLA_glue
 
 prepare: prepare_project
 # workarounds for unsupported weak attribute, e.g. when building for Windows:
