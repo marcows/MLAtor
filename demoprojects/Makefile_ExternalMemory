@@ -1,0 +1,49 @@
+TARGET := ExternalMemory
+
+GENERATED_DIR = generated_$(TARGET)
+BUILD_DIR = build_$(TARGET)
+
+SOURCES := \
+	DemoProjects_compat.c \
+	$(wildcard $(GENERATED_DIR)/*.c)
+
+CFLAGS := \
+	-DTARGET_$(TARGET) \
+	-include DemoProjects_compat.h
+
+LDFLAGS := \
+
+include ../common.mak
+
+CFLAGS += \
+	-I"$(MLA_INSTALL_PATH)/Graphics/Common"
+
+prepare_project:
+	$(Q)mkdir -p $(GENERATED_DIR)
+# unchanged
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/External Memory/ExternalResource.c"     $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/External Memory/ExternalResource.h"     $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/External Memory/GraphicsConfig.h"       $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/External Memory/HardwareProfile.h"      $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/External Memory/InternalResourceXC32.c" $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/External Memory/InternalResourceXC32.h" $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/External Memory/MainDemo.h"             $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/External Memory/UART.c"                 $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/External Memory/UART.h"                 $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/External Memory/usb_callback.c"         $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/External Memory/usb_config.h"           $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/External Memory/usb_descriptors.c"      $(GENERATED_DIR)
+# modified
+	$(Q)sed -e 's/InitializeBoard()\|FLASHInit(.*)\|HardwareButtonInit()\|CheckExternalFlashHex()//' \
+		-e ' / void InitializeBoard(void)/,$$d' \
+		"$(MLA_INSTALL_PATH)/Graphics/External Memory/MainDemo.c" \
+		> $(GENERATED_DIR)/MainDemo.c
+# created
+	$(Q)printf "const unsigned char externalMemoryData[] = {\n" > $(GENERATED_DIR)/ExternalResource-ExternalMemory.hex.c
+	$(Q)srec_cat -disable-sequence-warnings "$(MLA_INSTALL_PATH)/Graphics/External Memory/Resources/ExternalResource-ExternalMemory.hex" -intel -o - -hex-dump \
+		| sed -e 's/^[0-9a-fA-F]*://' \
+		      -e 's/#.*//' \
+		      -e 's/   / FF/g' \
+		      -e 's/\([0-9a-fA-F]\{2\}\) /0x\1,/g' \
+		>> $(GENERATED_DIR)/ExternalResource-ExternalMemory.hex.c
+	$(Q)printf "};" >> $(GENERATED_DIR)/ExternalResource-ExternalMemory.hex.c

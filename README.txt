@@ -11,6 +11,10 @@ Dependencies:
   Current MLA (MLA >= v2013-12-20) does not work
 - SDL 2.0 (http://libsdl.org/) for display output and user input
 
+Optional dependencies:
+- S-Record (http://srecord.sourceforge.net/) for demo projects using external
+  memory
+
 Currently working:
 - Graphics Library display output for GOL objects, primitives, bitmaps and
   fonts, but not feature complete regarding the configuration, see below

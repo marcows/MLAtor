@@ -15,6 +15,9 @@
   #define COLOR_DEPTH 4
   #define COMPAT_TICK_COUNTER
 
+#elif defined(TARGET_ExternalMemory)
+  #define COMPAT_GENERAL_EVENTS_HOOK
+
 #elif defined(TARGET_ObjectLayer)
   #define MEB_BOARD
   #define COMPAT_TICK_COUNTER
