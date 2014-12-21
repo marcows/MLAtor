@@ -11,6 +11,7 @@ SOURCES := \
 	$(wildcard $(GENERATED_DIR)/*.c)
 
 CFLAGS := \
+	-DMLATOR_WINDOW_TITLE="MLAtor - Color Depth" \
 	-DTARGET_$(TARGET) \
 	-include DemoProjects_compat.h
 

@@ -8,6 +8,7 @@ SOURCES := \
 	$(wildcard $(GENERATED_DIR)/*.c)
 
 CFLAGS := \
+	-DMLATOR_WINDOW_TITLE="MLAtor - Object Layer" \
 	-DTARGET_$(TARGET) \
 	-include DemoProjects_compat.h
 

@@ -7,6 +7,13 @@
 
 #include "Graphics/Graphics.h"
 
+#ifndef MLATOR_WINDOW_TITLE
+#define MLATOR_WINDOW_TITLE MLAtor
+#endif
+
+#define xstr(s) str(s)
+#define str(s) #s
+
 #ifdef USE_PALETTE
 #if (COLOR_DEPTH == 1)
   #define MAX_NUM_PALETTE_ENTRIES 2
@@ -125,7 +132,7 @@ void ResetDevice(void)
 	atexit(Cleanup);
 
 	window = SDL_CreateWindow(
-			"MLAtor",
+			xstr(MLATOR_WINDOW_TITLE),
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 			#if (DISP_ORIENTATION == 90 || DISP_ORIENTATION == 270)
 			DISP_VER_RESOLUTION, DISP_HOR_RESOLUTION,

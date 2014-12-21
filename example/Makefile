@@ -9,6 +9,7 @@ SOURCES := \
 	$(wildcard $(GENERATED_DIR)/*.c)
 
 CFLAGS := \
+	-DMLATOR_WINDOW_TITLE="MLAtor - Example"
 
 LDFLAGS := \
 
