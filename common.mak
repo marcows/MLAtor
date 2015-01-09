@@ -31,9 +31,9 @@ X ?=
 PROGRAM := $(TARGET)$(X)
 
 SOURCES += \
-	../MLA_glue/ExternalMemory.c \
-	../sdl/DisplayDriver_sdl.c \
-	../sdl/InputDriver_sdl.c
+	MLA_glue/ExternalMemory.c \
+	sdl/DisplayDriver_sdl.c \
+	sdl/InputDriver_sdl.c
 
 CFLAGS += \
 	-include MLA_compat.h \
@@ -61,6 +61,9 @@ all: $(PROGRAM)
 
 -include $(DEPS)
 
+# to find the common SOURCES
+vpath %.c ..
+
 $(BUILD_DIR)/%.o: %.c
 	$(Q)mkdir -p $(patsubst %/,%,$(dir $@))
 	$(Q)$(CC) $(CFLAGS) -MMD -c -o $@ $<
@@ -74,7 +77,7 @@ clean:
 
 distclean: clean
 	$(Q)-rm -f $(PROGRAM)
-	$(Q)-rm -f -R $(GENERATED_DIR) $(BUILD_DIR) sdl MLA_glue
+	$(Q)-rm -f -R $(GENERATED_DIR) $(BUILD_DIR)
 
 prepare: prepare_project
 # workarounds for unsupported weak attribute, e.g. when building for Windows:
