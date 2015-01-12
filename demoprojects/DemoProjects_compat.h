@@ -14,7 +14,6 @@
     #define USE_FONT_EXTERNAL
     #define USE_BITMAP_EXTERNAL
   #endif
-  #define COMPAT_TICK_COUNTER
 
 #elif defined(TARGET_ExternalMemory)
   #define COMPAT_GENERAL_EVENTS_HOOK
