@@ -66,6 +66,6 @@ void PeriodicHook(void)
 	extern DWORD tick;
 
 	// tick counter
-	tick = SDL_GetTicks() * 8;
+	tick = SDL_GetTicks() * COMPAT_TICK_COUNTER_FACTOR;
 #endif
 }

@@ -4,6 +4,7 @@
 #if defined(TARGET_AppNotes)
   #define COMPAT_DUMMY_EVENT_POLL
   #define COMPAT_TICK_COUNTER
+  #define COMPAT_TICK_COUNTER_FACTOR 8
 
 #elif defined(TARGET_ColorDepth)
   #define CFG_INCLUDE_MPLAB_X
@@ -21,11 +22,13 @@
 #elif defined(TARGET_ObjectLayer)
   #define MEB_BOARD
   #define COMPAT_TICK_COUNTER
+  #define COMPAT_TICK_COUNTER_FACTOR 8
   #define USE_DOUBLE_BUFFERING
 
 #elif defined(TARGET_ObjectLayerPalette)
   #define GFX_PICTAIL_LCC
   #define COMPAT_TICK_COUNTER
+  #define COMPAT_TICK_COUNTER_FACTOR 8
 
 #elif defined(TARGET_PIC32LCC)
   #define COMPAT_GENERAL_EVENTS_HOOK // for rendering during "Speed" sub demo
