@@ -229,8 +229,39 @@ void PutPixel(SHORT x, SHORT y)
 
 GFX_COLOR GetPixel(SHORT x, SHORT y)
 {
-	SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "GetPixel() NOT IMPLEMENTED YET\n");
-	return 0;
+	SDL_Rect rect;
+	Uint32 pixel, w_pixfmtVal;
+
+	SDL_PixelFormat *w_pixfmt;
+	Uint8 r, g, b;
+
+	rect.x = x;
+	rect.y = y;
+	rect.w = 1;
+	rect.h = 1;
+
+	w_pixfmtVal = SDL_GetWindowPixelFormat(window);
+	if (w_pixfmtVal == SDL_PIXELFORMAT_UNKNOWN) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not determine window pixel format, fall back to \"RGB 888\": %s\n", SDL_GetError());
+		w_pixfmtVal = SDL_PIXELFORMAT_RGB888;
+	}
+
+	if (SDL_RenderReadPixels(renderer, &rect, w_pixfmtVal, &pixel, DISP_HOR_RESOLUTION * sizeof(pixel)) != 0)
+	{
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not read pixel: %s\n", SDL_GetError());
+		return 0;
+	}
+
+	w_pixfmt = SDL_AllocFormat(w_pixfmtVal);
+	if (w_pixfmt == NULL) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not allocate window pixel format: %s\n", SDL_GetError());
+		return 0;
+	}
+
+	SDL_GetRGB(pixel, w_pixfmt, &r, &g, &b);
+	SDL_FreeFormat(w_pixfmt);
+
+	return SDL_MapRGB(pixfmt, r, g ,b);
 }
 
 WORD IsDeviceBusy(void)
@@ -372,6 +403,11 @@ void UpdateDisplayNow(void)
 WORD Bar(SHORT left, SHORT top, SHORT right, SHORT bottom)
 {
 	SDL_Rect rect;
+
+	#ifdef USE_ALPHABLEND_LITE
+	if (GetAlpha() != 100)
+		return BarAlpha(left, top, right, bottom);
+	#endif
 
 	rect.x = left;
 	rect.y = top;
