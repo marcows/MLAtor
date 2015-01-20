@@ -1,0 +1,53 @@
+TARGET := PIC32LCC
+
+GENERATED_DIR = generated_$(TARGET)
+BUILD_DIR = build_$(TARGET)
+
+SOURCES := \
+	DemoProjects_compat.c \
+	$(wildcard $(GENERATED_DIR)/*.c)
+
+CFLAGS := \
+	-DMLATOR_WINDOW_TITLE="MLAtor - PIC32 LCC" \
+	-DTARGET_$(TARGET) \
+	-include DemoProjects_compat.h
+
+LDFLAGS := \
+
+include ../common.mak
+
+prepare_project:
+	$(Q)mkdir -p $(GENERATED_DIR)
+# unchanged
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC32 LCC/AlphaBlendScreen.c"   $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC32 LCC/AlphaBlendScreen.h"   $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC32 LCC/BitmapImage.c"        $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC32 LCC/BitmapImage.h"        $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC32 LCC/GraphicsConfig.h"     $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC32 LCC/HardwareProfile.h"    $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC32 LCC/ImageDecoderConfig.h" $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC32 LCC/InternalResources.c"  $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC32 LCC/InternalResources.h"  $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC32 LCC/JPEGImage.c"          $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/PIC32 LCC/JPEGImage.h"          $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOL.c"                $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLSchemeDefault.c"   $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLFontDefault.c"     $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Button.c"             $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Image Decoders/ImageDecoder.c" $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Image Decoders/jidctint.c"     $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Image Decoders/JpegDecoder.c"  $(GENERATED_DIR)
+# modified
+	$(Q)sed -e '/#error/d' \
+		"$(MLA_INSTALL_PATH)/Graphics/PIC32 LCC/HardwareProfile.h" \
+		> $(GENERATED_DIR)/HardwareProfile.h
+	$(Q)sed -e 's/InitializeBoard()/GOLInit()/' \
+		-e ' /_T3Interrupt/,/^}/d' \
+		-e ' /^void TickInit(void)/,/^}/d' \
+		-e ' /^void InitializeBoard(void)/,/^}/d' \
+		-e ' /^void ScrollScreen/,/^}/d' \
+		-e ' /ScrollScreen\|SetPIPWindow\|SetActivePage\|SetVisualPage/d' \
+		-e ' /#include "Graphics\/mchpGfxLCC.h"/d' \
+		-e 's/Bar(.*);/& DelayMs(0);/' \
+		"$(MLA_INSTALL_PATH)/Graphics/PIC32 LCC/MainDemo.c" \
+		> $(GENERATED_DIR)/MainDemo.c
