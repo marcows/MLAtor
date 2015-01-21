@@ -27,6 +27,7 @@
 #elif defined(TARGET_ObjectLayer)
   #define MEB_BOARD
   #define COMPAT_TICK_COUNTER
+  #define USE_DOUBLE_BUFFERING
 
 #elif defined(TARGET_ObjectLayerPalette)
   #define GFX_PICTAIL_LCC
