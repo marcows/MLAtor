@@ -1,0 +1,116 @@
+TARGET := MultiApp
+
+# put some resources (bitmaps, fonts) into emulated external memory
+#EXTERNAL_MEMORY = x
+
+GENERATED_DIR = generated_$(TARGET)
+BUILD_DIR = build_$(TARGET)
+
+SOURCES := \
+	DemoProjects_compat.c \
+	$(wildcard $(GENERATED_DIR)/*.c)
+
+CFLAGS := \
+	-DMLATOR_WINDOW_TITLE="MLAtor - Multi-App" \
+	-DTARGET_$(TARGET) \
+	-include DemoProjects_compat.h
+
+LDFLAGS := \
+	-lm
+
+include ../common.mak
+
+CFLAGS += \
+	-I"$(MLA_INSTALL_PATH)/Graphics/Common"
+
+prepare_project:
+	$(Q)mkdir -p $(GENERATED_DIR)
+# unchanged
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/Animation.c"                $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/Animation.h"                $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/DemoSelection.c"            $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/DemoSelection.h"            $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/DemoSteps.c"                $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/DemoSteps.h"                $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/DrawTool.c"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/DrawTool.h"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/ECGBitmaps.c"               $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/ECG.c"                      $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/ECG.h"                      $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/FSconfig.h"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/Games.c"                    $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/Games.h"                    $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/GraphicsConfig.h"           $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/GraphShow.c"                $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/GraphShow.h"                $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/HardwareProfile.h"          $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/Icons.c"                    $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/ID.h"                       $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/ImageDecoderConfig.h"       $(GENERATED_DIR)
+ifdef EXTERNAL_MEMORY
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/ExternalResource.c"         $(GENERATED_DIR)
+else
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/InternalResourceSet2XC32.c" $(GENERATED_DIR)
+endif
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/ExternalResource.h"         $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/InternalResourceSet2XC32.h" $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/InternalResourceXC16.h"     $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/InternalResourceXC32.c"     $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/InternalResourceXC32.h"     $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/JPEGDemo.c"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/MainDemo.h"                 $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/MainDemoStrings.h"          $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/MultiFontsDemo.c"           $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/RGBDemo.c"                  $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/rtcc.c"                     $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/rtcc.h"                     $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/SideButtons.c"              $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/SideButtons.h"              $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/SlideShowDemo.c"            $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/TimeDateDemo.c"             $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/UART.c"                     $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/UART.h"                     $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/usb_config.c"               $(GENERATED_DIR)
+#	$(Q)cp "$(MLA_INSTALL_PATH)/Graphics/Multi-App/usb_config.h"               $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOL.c"                      $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLSchemeDefault.c"         $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/GOLFontDefault.c"           $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Button.c"                   $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Chart.c"                    $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/EditBox.c"                  $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Grid.c"                     $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Meter.c"                    $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Picture.c"                  $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/Slider.c"                   $(GENERATED_DIR)
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Graphics/StaticText.c"               $(GENERATED_DIR)
+# modified
+	$(Q)sed -e 's/InitializeBoard();/GOLInit();/' \
+		-e ' /^void Init_CPUClocks(void)\|_T3Interrupt\|^void TickInit(void)\|^void InitializeBoard(void)\|^WORD ExternalMemoryCallback/,/^}/d' \
+		-e 's/while((tick - prevTick) < /DelayMs(/' \
+		-e 's/\&intro.*/& DelayMs(0);/' \
+		-e 's/^ \{16\}WAIT_UNTIL_FINISH.*\&mchpIcon0.*/& DelayMs(0);/' \
+		-e 's/^ \{12\}WAIT_UNTIL_FINISH.*\&mchpIcon0.*/& DelayMs(2);/' \
+		-e 's/OutText(.*text).*/& DelayMs(0);/' \
+		-e 's/PutPixel(.*);/& } DelayMs(0); {/' \
+		"$(MLA_INSTALL_PATH)/Graphics/Multi-App/MainDemo.c"              > $(GENERATED_DIR)/MainDemo.c
+	$(Q)sed -e 's/#include <p24Fxxxx.h>//' \
+		"$(MLA_INSTALL_PATH)/Graphics/Multi-App/JPEGDemo.h"              > $(GENERATED_DIR)/JPEGDemo.h
+	$(Q)sed -e 's/#include <p24Fxxxx.h>//' \
+		"$(MLA_INSTALL_PATH)/Graphics/Multi-App/MultiFontsDemo.h"        > $(GENERATED_DIR)/MultiFontsDemo.h
+	$(Q)sed -e 's/#include <p24Fxxxx.h>//' \
+		"$(MLA_INSTALL_PATH)/Graphics/Multi-App/RGBDemo.h"               > $(GENERATED_DIR)/RGBDemo.h
+	$(Q)sed -e 's/#include <p24Fxxxx.h>//' \
+		"$(MLA_INSTALL_PATH)/Graphics/Multi-App/SlideShowDemo.h"         > $(GENERATED_DIR)/SlideShowDemo.h
+	$(Q)sed -e 's/#include <p24Fxxxx.h>//' \
+		"$(MLA_INSTALL_PATH)/Graphics/Multi-App/TimeDateDemo.h"          > $(GENERATED_DIR)/TimeDateDemo.h
+# created
+	$(Q)printf "const unsigned char externalMemoryData[] = {\n" > $(GENERATED_DIR)/ExternalResource-MultiApp.hex.c
+ifdef EXTERNAL_MEMORY
+	$(Q)srec_cat -disable-sequence-warnings "$(MLA_INSTALL_PATH)/Graphics/Multi-App/Resources/ExternalResource-MultiApp.hex" -intel -o - -hex-dump \
+		| sed -e 's/^[0-9a-fA-F]*://' \
+		      -e 's/#.*//' \
+		      -e 's/   / FF/g' \
+		      -e 's/\([0-9a-fA-F]\{2\}\) /0x\1,/g' \
+		>> $(GENERATED_DIR)/ExternalResource-MultiApp.hex.c
+endif
+	$(Q)printf "};" >> $(GENERATED_DIR)/ExternalResource-MultiApp.hex.c

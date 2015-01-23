@@ -8,6 +8,10 @@
 char _time_str[16] = "                ";
 char _date_str[16] = "                ";
 
+#ifdef COMPAT_ADC_POTENTIOMETER
+volatile SHORT adcPot;
+#endif
+
 /* do dummy event handling, necessary for querying the input state */
 static void TouchGetDummyMsg(void)
 {
@@ -67,5 +71,9 @@ void PeriodicHook(void)
 
 	// tick counter
 	tick = SDL_GetTicks() * COMPAT_TICK_COUNTER_FACTOR;
+#endif
+
+#ifdef COMPAT_ADC_POTENTIOMETER
+	adcPot = tick & 0x03FF; // 10-bit ADC
 #endif
 }

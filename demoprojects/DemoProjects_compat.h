@@ -19,6 +19,14 @@
 #elif defined(TARGET_ExternalMemory)
   #define COMPAT_GENERAL_EVENTS_HOOK
 
+#elif defined(TARGET_MultiApp)
+  #define COMPAT_GENERAL_EVENTS_HOOK // for rendering the splash screen
+  #define COMPAT_TICK_COUNTER
+  #define COMPAT_TICK_COUNTER_FACTOR 1
+  #define COMPAT_ADC_POTENTIOMETER
+  #define __PIC32MX__
+  #define TMR3 (rand() & 0xFFFF) // for the noise generator
+
 #elif defined(TARGET_ObjectLayer)
   #define MEB_BOARD
   #define COMPAT_TICK_COUNTER
