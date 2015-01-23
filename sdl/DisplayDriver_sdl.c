@@ -398,6 +398,57 @@ void UpdateDisplayNow(void)
 }
 #endif
 
+/* This function currently only works within a single display buffer, srcAddr
+ * and dstAddr are unused. */
+WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, WORD width, WORD height)
+{
+	static Uint32 pixels[DISP_HOR_RESOLUTION * DISP_VER_RESOLUTION];
+	SDL_Rect rect;
+	Uint32 w_pixfmtVal;
+
+	SDL_PixelFormat *w_pixfmt;
+	int x, y;
+
+	rect.x = srcOffset % DISP_HOR_RESOLUTION;
+	rect.y = srcOffset / DISP_HOR_RESOLUTION;
+	rect.w = width;
+	rect.h = height;
+
+	w_pixfmtVal = SDL_GetWindowPixelFormat(window);
+	if (w_pixfmtVal == SDL_PIXELFORMAT_UNKNOWN) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not determine window pixel format, fall back to \"RGB 888\": %s\n", SDL_GetError());
+		w_pixfmtVal = SDL_PIXELFORMAT_RGB888;
+	}
+
+	if (SDL_RenderReadPixels(renderer, &rect, w_pixfmtVal, pixels, DISP_HOR_RESOLUTION * sizeof(pixels[0])) != 0)
+	{
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not read pixels: %s\n", SDL_GetError());
+		return 1;
+	}
+
+	rect.x = dstOffset % DISP_HOR_RESOLUTION;
+	rect.y = dstOffset / DISP_HOR_RESOLUTION;
+
+	w_pixfmt = SDL_AllocFormat(w_pixfmtVal);
+	if (w_pixfmt == NULL) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not allocate window pixel format: %s\n", SDL_GetError());
+		return 1;
+	}
+
+	for (y = rect.y; y < rect.y + rect.h; y++) {
+		for (x = rect.x; x < rect.x + rect.w; x++) {
+			Uint8 r, g, b;
+
+			SDL_GetRGB(pixels[(y - rect.y) * DISP_HOR_RESOLUTION + (x - rect.x)], w_pixfmt, &r, &g, &b);
+			SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+			SDL_RenderDrawPoint(renderer, x, y);
+		}
+	}
+
+	ScheduleScreenUpdate();
+	return 1;
+}
+
 /* accelerated functions to avoid primitives using PutPixel() */
 
 WORD Bar(SHORT left, SHORT top, SHORT right, SHORT bottom)
