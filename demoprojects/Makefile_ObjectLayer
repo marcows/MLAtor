@@ -52,5 +52,8 @@ prepare_project:
 # modified
 	$(Q)sed -e 's/InitializeBoard()/GOLInit()/' \
 		-e ' /_T4Interrupt/,$$d' \
+		-e 's/^ \{12\}WAIT_UNTIL_FINISH.*\&mchpIcon0.*/& DelayMs(2);/' \
+		-e 's/OutText(.*cTouchScreenStr).*/& DelayMs(0);/' \
+		-e 's/PutPixel(SS_ORIGIN_X.*);/& } DelayMs(0); {/' \
 		"$(MLA_INSTALL_PATH)/Graphics/Object Layer/MainDemo.c" \
 		> $(GENERATED_DIR)/MainDemo.c
