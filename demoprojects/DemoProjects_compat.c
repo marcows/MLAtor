@@ -46,10 +46,20 @@ BYTE GetHWButtonScanUp(void)
 	return !SDL_GetKeyboardState(NULL)[SDL_SCANCODE_UP];
 }
 
+#ifdef USE_TOUCHSCREEN
 SHORT TouchGetX(void)
 {
-	return 0; // -1 if not pressed
+	int x, y;
+
+	GOL_MSG pDummyMsg;
+	TouchGetMsg(&pDummyMsg);
+
+	if (SDL_GetMouseState(&x, &y) & SDL_BUTTON_LMASK)
+		return x;
+	else
+		return -1; // not pressed
 }
+#endif
 
 void DelayMs(UINT16 ms)
 {
