@@ -25,6 +25,8 @@
   #define COMPAT_TICK_COUNTER_FACTOR 1
   #define COMPAT_ADC_POTENTIOMETER
   #define __PIC32MX__
+  #define __PIC24FJ256DA210__ // for using CopyBlock()
+  #define GFX_DISPLAY_BUFFER_START_ADDRESS 0
   #define TMR3 (rand() & 0xFFFF) // for the noise generator
 
 #elif defined(TARGET_ObjectLayer)
