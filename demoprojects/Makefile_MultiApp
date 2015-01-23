@@ -87,10 +87,7 @@ endif
 	$(Q)sed -e 's/InitializeBoard();/GOLInit();/' \
 		-e ' /^void Init_CPUClocks(void)\|_T3Interrupt\|^void TickInit(void)\|^void InitializeBoard(void)\|^WORD ExternalMemoryCallback/,/^}/d' \
 		-e 's/while((tick - prevTick) < /DelayMs(/' \
-		-e 's/\&intro.*/& DelayMs(0);/' \
-		-e 's/^ \{16\}WAIT_UNTIL_FINISH.*\&mchpIcon0.*/& DelayMs(0);/' \
 		-e 's/^ \{12\}WAIT_UNTIL_FINISH.*\&mchpIcon0.*/& DelayMs(2);/' \
-		-e 's/OutText(.*text).*/& DelayMs(0);/' \
 		-e 's/PutPixel(.*);/& } DelayMs(0); {/' \
 		"$(MLA_INSTALL_PATH)/Graphics/Multi-App/MainDemo.c"              > $(GENERATED_DIR)/MainDemo.c
 	$(Q)sed -e 's/#include <p24Fxxxx.h>//' \
