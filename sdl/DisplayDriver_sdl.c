@@ -5,6 +5,7 @@
 
 #include "DisplayDriver_sdl.h"
 
+#include <time.h>
 #include "Graphics/Graphics.h"
 
 #ifndef MLATOR_WINDOW_TITLE
@@ -201,7 +202,9 @@ void ResetDevice(void)
 		exit(EXIT_FAILURE);
 	}
 
+	#ifndef MLATOR_EXTRAS
 	SDL_EventState(SDL_KEYDOWN, SDL_IGNORE);
+	#endif
 	SDL_EventState(SDL_KEYUP, SDL_IGNORE);
 	SDL_EventState(SDL_TEXTEDITING, SDL_IGNORE);
 	SDL_EventState(SDL_TEXTINPUT, SDL_IGNORE);
@@ -490,6 +493,19 @@ void HandleGeneralEvent(SDL_Event *event)
 		exit(EXIT_SUCCESS);
 		break;
 
+	#ifdef MLATOR_EXTRAS
+	case SDL_KEYDOWN:
+		if (event->key.keysym.sym == SDLK_F1) {
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Help",
+						"F1 - Show help\n"
+						"F2 - Save screenshot\n"
+						, NULL);
+		} else if (event->key.keysym.sym == SDLK_F2) {
+			MLAtor_TakeScreenshot();
+		}
+		break;
+	#endif
+
 	default:
 		if (event->type == redrawEvent) {
 			SDL_RenderPresent(renderer);
@@ -498,4 +514,88 @@ void HandleGeneralEvent(SDL_Event *event)
 		}
 		break;
 	}
+}
+
+/* Extras */
+
+#ifndef MLATOR_SCREENSHOT_PREFIX
+#define MLATOR_SCREENSHOT_PREFIX MLAtor
+#endif
+
+void MLAtor_TakeScreenshot(void)
+{
+	time_t now;
+	struct tm *nowlocal;
+	char nowstring[15 + 1];
+
+	char sshotFilename[sizeof(xstr(MLATOR_SCREENSHOT_PREFIX)) + 1 + 15 + 4 + 1] = xstr(MLATOR_SCREENSHOT_PREFIX) "_";
+	FILE *sshotFile;
+
+	Uint32 w_pixfmtVal;
+	SDL_PixelFormat *w_pixfmt;
+	SDL_Surface *sshot;
+
+	/* create filename and abort if file already exists, format: <MLATOR_SCREENSHOT_PREFIX>_yyyymmddThhmmss.bmp */
+
+	if (time(&now) == (time_t)-1) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not determine current time.\n");
+		return;
+	}
+
+	nowlocal = localtime(&now);
+	if (nowlocal == NULL) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not convert to local time.\n");
+		return;
+	}
+
+	if (strftime(nowstring, 15 + 1, "%Y%m%dT%H%M%S", nowlocal) != (sizeof(nowstring) - 1)) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not format the filename.\n");
+		return;
+	}
+
+	strcat(sshotFilename, nowstring);
+	strcat(sshotFilename, ".bmp");
+
+	sshotFile = fopen(sshotFilename, "r");
+	if (sshotFile) {
+		fclose(sshotFile);
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "File already exists, only 1 screenshot per second possible.\n");
+		return;
+	}
+
+	/* read pixels into SDL surface and save to bitmap file */
+
+	w_pixfmtVal = SDL_GetWindowPixelFormat(window);
+	if (w_pixfmtVal == SDL_PIXELFORMAT_UNKNOWN) {
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Could not determine window pixel format, fall back to \"RGB 888\": %s\n", SDL_GetError());
+		w_pixfmtVal = SDL_PIXELFORMAT_RGB888;
+	}
+
+	w_pixfmt = SDL_AllocFormat(w_pixfmtVal);
+	if (w_pixfmt == NULL) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not allocate window pixel format: %s\n", SDL_GetError());
+		return;
+	}
+
+	sshot = SDL_CreateRGBSurface(0, DISP_HOR_RESOLUTION, DISP_VER_RESOLUTION,
+			w_pixfmt->BitsPerPixel, w_pixfmt->Rmask, w_pixfmt->Gmask, w_pixfmt->Bmask, w_pixfmt->Amask);
+	if (sshot == NULL) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not create screenshot surface: %s\n", SDL_GetError());
+		SDL_FreeFormat(w_pixfmt);
+		return;
+	}
+
+	if (SDL_RenderReadPixels(renderer, NULL, w_pixfmtVal, sshot->pixels, sshot->pitch)) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not read screenshot pixels: %s\n", SDL_GetError());
+		SDL_FreeSurface(sshot);
+		SDL_FreeFormat(w_pixfmt);
+		return;
+	}
+
+	if (SDL_SaveBMP(sshot, sshotFilename)) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not save screenshot to .bmp file: %s\n", SDL_GetError());
+	}
+
+	SDL_FreeSurface(sshot);
+	SDL_FreeFormat(w_pixfmt);
 }

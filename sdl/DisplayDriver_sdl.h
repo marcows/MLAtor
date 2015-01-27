@@ -11,5 +11,6 @@
 #include <SDL.h>
 
 void HandleGeneralEvent(SDL_Event *event);
+void MLAtor_TakeScreenshot(void);
 
 #endif

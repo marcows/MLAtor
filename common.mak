@@ -45,6 +45,8 @@ CFLAGS += \
 	-I"../sdl" \
 	-I"$(MLA_INSTALL_PATH)/Microchip/Include" \
 	-I"$(MLA_INSTALL_PATH)/Board Support Package" \
+	-DMLATOR_EXTRAS \
+	-DMLATOR_SCREENSHOT_PREFIX="$(TARGET)" \
 	$(SDL2_CFLAGS)
 
 LDFLAGS += \

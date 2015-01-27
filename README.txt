@@ -75,3 +75,17 @@ Supported out of the box:
 - USE_FONT_FLASH
 - USE_FONT_RAM
 - USE_GRADIENT
+
+
+Extras
+======
+
+If MLATOR_EXTRAS is defined (default for the example and demo projects):
+
+- press <F1> for a help dialog
+
+- press <F2> to take a screenshot
+  It is directly saved to a file, the filename contains the timestamp and is
+  of the format <prefix>_yyyymmddThhmmss.bmp. Due to the time resolution, only
+  1 screenshot per second is possible. An existing file will not be
+  overwritten.
