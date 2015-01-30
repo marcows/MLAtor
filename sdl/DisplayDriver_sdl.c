@@ -242,7 +242,7 @@ GFX_COLOR GetPixel(SHORT x, SHORT y)
 
 	w_pixfmtVal = SDL_GetWindowPixelFormat(window);
 	if (w_pixfmtVal == SDL_PIXELFORMAT_UNKNOWN) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not determine window pixel format, fall back to \"RGB 888\": %s\n", SDL_GetError());
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Could not determine window pixel format, fall back to \"RGB 888\": %s\n", SDL_GetError());
 		w_pixfmtVal = SDL_PIXELFORMAT_RGB888;
 	}
 
@@ -416,7 +416,7 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 
 	w_pixfmtVal = SDL_GetWindowPixelFormat(window);
 	if (w_pixfmtVal == SDL_PIXELFORMAT_UNKNOWN) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not determine window pixel format, fall back to \"RGB 888\": %s\n", SDL_GetError());
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Could not determine window pixel format, fall back to \"RGB 888\": %s\n", SDL_GetError());
 		w_pixfmtVal = SDL_PIXELFORMAT_RGB888;
 	}
 
