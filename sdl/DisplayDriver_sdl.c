@@ -497,10 +497,7 @@ void HandleGeneralEvent(SDL_Event *event)
 	#ifdef MLATOR_EXTRAS
 	case SDL_KEYDOWN:
 		if (event->key.keysym.sym == SDLK_F1) {
-			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Help",
-						"F1 - Show help\n"
-						"F2 - Save screenshot\n"
-						, NULL);
+			MLAtor_ShowHelp();
 		} else if (event->key.keysym.sym == SDLK_F2) {
 			MLAtor_TakeScreenshot();
 		}
@@ -522,6 +519,14 @@ void HandleGeneralEvent(SDL_Event *event)
 #ifndef MLATOR_SCREENSHOT_PREFIX
 #define MLATOR_SCREENSHOT_PREFIX MLAtor
 #endif
+
+void MLAtor_ShowHelp(void)
+{
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Help",
+				"F1 - Show help\n"
+				"F2 - Save screenshot\n"
+				, NULL);
+}
 
 void MLAtor_TakeScreenshot(void)
 {
