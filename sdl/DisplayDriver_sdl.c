@@ -5,6 +5,7 @@
 
 #include "DisplayDriver_sdl.h"
 
+#include <stdio.h>
 #include <time.h>
 #include "Graphics/Graphics.h"
 
