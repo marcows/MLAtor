@@ -89,3 +89,6 @@ If MLATOR_EXTRAS is defined (default for the example and demo projects):
   of the format <prefix>_yyyymmddThhmmss.bmp. Due to the time resolution, only
   1 screenshot per second is possible. An existing file will not be
   overwritten.
+
+- scaling of display output supported by changing the compile switch
+  MLATOR_SCALE_FACTOR_DEFAULT

@@ -13,6 +13,9 @@ void __attribute__((weak)) PeriodicHook(void)
 void TouchGetMsg(GOL_MSG *pMsg)
 {
 	SDL_Event event;
+	Uint8 scaleFactor;
+
+	scaleFactor = MLAtor_GetScaleFactor();
 
 	pMsg->type = TYPE_TOUCHSCREEN;
 	pMsg->uiEvent = EVENT_INVALID;
@@ -24,24 +27,24 @@ void TouchGetMsg(GOL_MSG *pMsg)
 		case SDL_MOUSEBUTTONDOWN:
 			if (event.button.button == SDL_BUTTON_LEFT) {
 				pMsg->uiEvent = EVENT_PRESS;
-				pMsg->param1 = event.button.x;
-				pMsg->param2 = event.button.y;
+				pMsg->param1 = event.button.x / scaleFactor;
+				pMsg->param2 = event.button.y / scaleFactor;
 			}
 			break;
 
 		case SDL_MOUSEBUTTONUP:
 			if (event.button.button == SDL_BUTTON_LEFT) {
 				pMsg->uiEvent = EVENT_RELEASE;
-				pMsg->param1 = event.button.x;
-				pMsg->param2 = event.button.y;
+				pMsg->param1 = event.button.x / scaleFactor;
+				pMsg->param2 = event.button.y / scaleFactor;
 			}
 			break;
 
 		case SDL_MOUSEMOTION:
 			if (event.motion.state & SDL_BUTTON_LMASK) {
 				pMsg->uiEvent = EVENT_MOVE;
-				pMsg->param1 = event.motion.x;
-				pMsg->param2 = event.motion.y;
+				pMsg->param1 = event.motion.x / scaleFactor;
+				pMsg->param2 = event.motion.y / scaleFactor;
 			}
 			break;
 
@@ -54,8 +57,8 @@ void TouchGetMsg(GOL_MSG *pMsg)
 
 		if (SDL_GetMouseState(&x, &y) & SDL_BUTTON_LMASK) {
 			pMsg->uiEvent = EVENT_STILLPRESS;
-			pMsg->param1 = x;
-			pMsg->param2 = y;
+			pMsg->param1 = x / scaleFactor;
+			pMsg->param2 = y / scaleFactor;
 		}
 
 		// do not eat 100% CPU

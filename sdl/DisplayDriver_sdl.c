@@ -13,6 +13,14 @@
 #define MLATOR_WINDOW_TITLE MLAtor
 #endif
 
+#ifndef MLATOR_SCALE_FACTOR_DEFAULT
+#define MLATOR_SCALE_FACTOR_DEFAULT 1
+#endif
+
+#ifndef MLATOR_SCALE_FACTOR_MAX
+#define MLATOR_SCALE_FACTOR_MAX 3
+#endif
+
 #define xstr(s) str(s)
 #define str(s) #s
 
@@ -72,6 +80,9 @@ static SDL_Palette *palette;
 static SDL_PixelFormat *pixfmt_idx, *pixfmt_rgb;
 #endif
 #endif
+
+// window/render scaling
+static Uint8 scaleFactor = MLATOR_SCALE_FACTOR_DEFAULT;
 
 /* local helper functions */
 static void Cleanup(void);
@@ -142,9 +153,9 @@ void ResetDevice(void)
 			xstr(MLATOR_WINDOW_TITLE),
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 			#if (DISP_ORIENTATION == 90 || DISP_ORIENTATION == 270)
-			DISP_VER_RESOLUTION, DISP_HOR_RESOLUTION,
+			DISP_VER_RESOLUTION * scaleFactor, DISP_HOR_RESOLUTION * scaleFactor,
 			#else
-			DISP_HOR_RESOLUTION, DISP_VER_RESOLUTION,
+			DISP_HOR_RESOLUTION * scaleFactor, DISP_VER_RESOLUTION * scaleFactor,
 			#endif
 			0);
 	if (window == NULL) {
@@ -218,6 +229,12 @@ void ResetDevice(void)
 	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
 	#endif
 
+	if (SDL_RenderSetScale(renderer, scaleFactor, scaleFactor)) {
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Could not scale rendering: %s\n", SDL_GetError());
+		scaleFactor = 1;
+		// TODO: change window size and redraw content
+	}
+
 	SetColor(BLACK);
 	ActivateCurrentColor();
 	SDL_RenderClear(renderer);
@@ -239,8 +256,8 @@ GFX_COLOR GetPixel(SHORT x, SHORT y)
 	SDL_PixelFormat *w_pixfmt;
 	Uint8 r, g, b;
 
-	rect.x = x;
-	rect.y = y;
+	rect.x = x * scaleFactor;
+	rect.y = y * scaleFactor;
 	rect.w = 1;
 	rect.h = 1;
 
@@ -250,7 +267,7 @@ GFX_COLOR GetPixel(SHORT x, SHORT y)
 		w_pixfmtVal = SDL_PIXELFORMAT_RGB888;
 	}
 
-	if (SDL_RenderReadPixels(renderer, &rect, w_pixfmtVal, &pixel, DISP_HOR_RESOLUTION * sizeof(pixel)) != 0)
+	if (SDL_RenderReadPixels(renderer, &rect, w_pixfmtVal, &pixel, DISP_HOR_RESOLUTION * scaleFactor * sizeof(pixel)) != 0)
 	{
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not read pixel: %s\n", SDL_GetError());
 		return 0;
@@ -406,17 +423,17 @@ void UpdateDisplayNow(void)
  * and dstAddr are unused. */
 WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, WORD width, WORD height)
 {
-	static Uint32 pixels[DISP_HOR_RESOLUTION * DISP_VER_RESOLUTION];
+	static Uint32 pixels[DISP_HOR_RESOLUTION * MLATOR_SCALE_FACTOR_MAX * DISP_VER_RESOLUTION * MLATOR_SCALE_FACTOR_MAX];
 	SDL_Rect rect;
 	Uint32 w_pixfmtVal;
 
 	SDL_PixelFormat *w_pixfmt;
 	int x, y;
 
-	rect.x = srcOffset % DISP_HOR_RESOLUTION;
-	rect.y = srcOffset / DISP_HOR_RESOLUTION;
-	rect.w = width;
-	rect.h = height;
+	rect.x = (srcOffset % DISP_HOR_RESOLUTION) * scaleFactor;
+	rect.y = (srcOffset / DISP_HOR_RESOLUTION) * scaleFactor;
+	rect.w = width * scaleFactor;
+	rect.h = height * scaleFactor;
 
 	w_pixfmtVal = SDL_GetWindowPixelFormat(window);
 	if (w_pixfmtVal == SDL_PIXELFORMAT_UNKNOWN) {
@@ -424,14 +441,14 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 		w_pixfmtVal = SDL_PIXELFORMAT_RGB888;
 	}
 
-	if (SDL_RenderReadPixels(renderer, &rect, w_pixfmtVal, pixels, DISP_HOR_RESOLUTION * sizeof(pixels[0])) != 0)
+	if (SDL_RenderReadPixels(renderer, &rect, w_pixfmtVal, pixels, DISP_HOR_RESOLUTION * scaleFactor * sizeof(pixels[0])) != 0)
 	{
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not read pixels: %s\n", SDL_GetError());
 		return 1;
 	}
 
-	rect.x = dstOffset % DISP_HOR_RESOLUTION;
-	rect.y = dstOffset / DISP_HOR_RESOLUTION;
+	rect.x = (dstOffset % DISP_HOR_RESOLUTION) * scaleFactor;
+	rect.y = (dstOffset / DISP_HOR_RESOLUTION) * scaleFactor;
 
 	w_pixfmt = SDL_AllocFormat(w_pixfmtVal);
 	if (w_pixfmt == NULL) {
@@ -439,13 +456,13 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 		return 1;
 	}
 
-	for (y = rect.y; y < rect.y + rect.h; y++) {
-		for (x = rect.x; x < rect.x + rect.w; x++) {
+	for (y = rect.y; y < rect.y + rect.h; y += scaleFactor) {
+		for (x = rect.x; x < rect.x + rect.w; x += scaleFactor) {
 			Uint8 r, g, b;
 
-			SDL_GetRGB(pixels[(y - rect.y) * DISP_HOR_RESOLUTION + (x - rect.x)], w_pixfmt, &r, &g, &b);
+			SDL_GetRGB(pixels[(y - rect.y) * DISP_HOR_RESOLUTION * scaleFactor + (x - rect.x)], w_pixfmt, &r, &g, &b);
 			SDL_SetRenderDrawColor(renderer, r, g, b, 255);
-			SDL_RenderDrawPoint(renderer, x, y);
+			SDL_RenderDrawPoint(renderer, x / scaleFactor, y / scaleFactor);
 		}
 	}
 
@@ -583,7 +600,7 @@ void MLAtor_TakeScreenshot(void)
 		return;
 	}
 
-	sshot = SDL_CreateRGBSurface(0, DISP_HOR_RESOLUTION, DISP_VER_RESOLUTION,
+	sshot = SDL_CreateRGBSurface(0, DISP_HOR_RESOLUTION * scaleFactor, DISP_VER_RESOLUTION * scaleFactor,
 			w_pixfmt->BitsPerPixel, w_pixfmt->Rmask, w_pixfmt->Gmask, w_pixfmt->Bmask, w_pixfmt->Amask);
 	if (sshot == NULL) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not create screenshot surface: %s\n", SDL_GetError());
@@ -604,4 +621,9 @@ void MLAtor_TakeScreenshot(void)
 
 	SDL_FreeSurface(sshot);
 	SDL_FreeFormat(w_pixfmt);
+}
+
+Uint8 MLAtor_GetScaleFactor(void)
+{
+	return scaleFactor;
 }

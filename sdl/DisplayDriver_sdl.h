@@ -13,5 +13,6 @@
 void HandleGeneralEvent(SDL_Event *event);
 void MLAtor_ShowHelp(void);
 void MLAtor_TakeScreenshot(void);
+Uint8 MLAtor_GetScaleFactor(void);
 
 #endif
