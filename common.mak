@@ -44,6 +44,7 @@ CFLAGS += \
 	-I"../MLA_glue" \
 	-I"../sdl" \
 	-I"$(MLA_INSTALL_PATH)/Microchip/Include" \
+	-I"$(MLA_INSTALL_PATH)/Microchip/Include/Graphics" \
 	-I"$(MLA_INSTALL_PATH)/Board Support Package" \
 	-DMLATOR_EXTRAS \
 	-DMLATOR_SCREENSHOT_PREFIX="$(TARGET)" \
@@ -95,3 +96,11 @@ prepare: prepare_project
 		-e 's/\(typedef\).*\<\(UINT32\|DWORD\)\>/\1 uint32_t \2/' \
 		"$(MLA_INSTALL_PATH)/Microchip/Include/GenericTypeDefs.h" \
 		> $(GENERATED_DIR)/GenericTypeDefs.h
+# Fix wrong inline definition, causes link errors with USE_DOUBLE_BUFFERING.
+# GraphicsConfig.h needs to be copied to avoid including the faulty
+# DisplayDriver.h from MLA installation in the same directory
+	$(Q)mkdir -p $(GENERATED_DIR)/Graphics
+	$(Q)sed -e 's/extern inline/static inline/' \
+		"$(MLA_INSTALL_PATH)/Microchip/Include/Graphics/DisplayDriver.h" \
+		> $(GENERATED_DIR)/Graphics/DisplayDriver.h
+	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Include/Graphics/Graphics.h" $(GENERATED_DIR)/Graphics
