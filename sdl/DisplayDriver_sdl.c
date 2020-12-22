@@ -466,6 +466,8 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 		}
 	}
 
+	SDL_FreeFormat(w_pixfmt);
+
 	ScheduleScreenUpdate();
 	return 1;
 }
