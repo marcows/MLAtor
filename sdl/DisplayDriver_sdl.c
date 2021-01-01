@@ -267,7 +267,7 @@ GFX_COLOR GetPixel(SHORT x, SHORT y)
 		w_pixfmtVal = SDL_PIXELFORMAT_RGB888;
 	}
 
-	if (SDL_RenderReadPixels(renderer, &rect, w_pixfmtVal, &pixel, DISP_HOR_RESOLUTION * scaleFactor * sizeof(pixel)) != 0)
+	if (SDL_RenderReadPixels(renderer, &rect, w_pixfmtVal, &pixel, rect.w * sizeof(pixel)) != 0)
 	{
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not read pixel: %s\n", SDL_GetError());
 		return 0;
@@ -441,7 +441,7 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 		w_pixfmtVal = SDL_PIXELFORMAT_RGB888;
 	}
 
-	if (SDL_RenderReadPixels(renderer, &rect, w_pixfmtVal, pixels, DISP_HOR_RESOLUTION * scaleFactor * sizeof(pixels[0])) != 0)
+	if (SDL_RenderReadPixels(renderer, &rect, w_pixfmtVal, pixels, rect.w * sizeof(pixels[0])) != 0)
 	{
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not read pixels: %s\n", SDL_GetError());
 		return 1;
@@ -460,7 +460,7 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 		for (x = rect.x; x < rect.x + rect.w; x += scaleFactor) {
 			Uint8 r, g, b;
 
-			SDL_GetRGB(pixels[(y - rect.y) * DISP_HOR_RESOLUTION * scaleFactor + (x - rect.x)], w_pixfmt, &r, &g, &b);
+			SDL_GetRGB(pixels[(y - rect.y) * rect.w + (x - rect.x)], w_pixfmt, &r, &g, &b);
 			SDL_SetRenderDrawColor(renderer, r, g, b, 255);
 			SDL_RenderDrawPoint(renderer, x / scaleFactor, y / scaleFactor);
 		}
