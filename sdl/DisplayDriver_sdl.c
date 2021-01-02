@@ -602,7 +602,7 @@ void MLAtor_TakeScreenshot(void)
 		return;
 	}
 
-	sshot = SDL_CreateRGBSurface(0, DISP_HOR_RESOLUTION * scaleFactor, DISP_VER_RESOLUTION * scaleFactor,
+	sshot = SDL_CreateRGBSurface(0, (GetMaxX() + 1) * scaleFactor, (GetMaxY() + 1) * scaleFactor,
 			w_pixfmt->BitsPerPixel, w_pixfmt->Rmask, w_pixfmt->Gmask, w_pixfmt->Bmask, w_pixfmt->Amask);
 	if (sshot == NULL) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not create screenshot surface: %s\n", SDL_GetError());
