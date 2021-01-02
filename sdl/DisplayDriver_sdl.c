@@ -152,11 +152,7 @@ void ResetDevice(void)
 	window = SDL_CreateWindow(
 			xstr(MLATOR_WINDOW_TITLE),
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			#if (DISP_ORIENTATION == 90 || DISP_ORIENTATION == 270)
-			DISP_VER_RESOLUTION * scaleFactor, DISP_HOR_RESOLUTION * scaleFactor,
-			#else
-			DISP_HOR_RESOLUTION * scaleFactor, DISP_VER_RESOLUTION * scaleFactor,
-			#endif
+			(GetMaxX() + 1) * scaleFactor, (GetMaxY() + 1) * scaleFactor,
 			0);
 	if (window == NULL) {
 		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not create window: %s\n", SDL_GetError());
