@@ -72,7 +72,7 @@ $(BUILD_DIR)/%.o: %.c
 	$(Q)$(CC) $(CFLAGS) -MMD -c -o $@ $<
 
 $(PROGRAM): $(OBJECTS)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
 	$(Q)-rm -f $(OBJECTS)
