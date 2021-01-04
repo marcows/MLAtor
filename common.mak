@@ -91,7 +91,7 @@ prepare: prepare_project
 		"$(MLA_INSTALL_PATH)/Microchip/Graphics/Primitive.c" \
 		> $(GENERATED_DIR)/Primitive.c
 # fix 32-bit integer typedefs, the used "signed long" and "unsigned long" base types may take 64 bits
-	$(Q)sed -e '/#include/a #include <stdint.h>' \
+	$(Q)sed -e ' /#include/a #include <stdint.h>' \
 		-e 's/\(typedef\).*\<\(INT32\|LONG\)\>/\1 int32_t \2/' \
 		-e 's/\(typedef\).*\<\(UINT32\|DWORD\)\>/\1 uint32_t \2/' \
 		"$(MLA_INSTALL_PATH)/Microchip/Include/GenericTypeDefs.h" \

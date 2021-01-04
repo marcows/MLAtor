@@ -38,7 +38,7 @@ prepare_project:
 	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Image Decoders/jidctint.c"     $(GENERATED_DIR)
 	$(Q)cp "$(MLA_INSTALL_PATH)/Microchip/Image Decoders/JpegDecoder.c"  $(GENERATED_DIR)
 # modified
-	$(Q)sed -e '/#error/d' \
+	$(Q)sed -e ' /#error/d' \
 		"$(MLA_INSTALL_PATH)/Graphics/PIC32 LCC/HardwareProfile.h" \
 		> $(GENERATED_DIR)/HardwareProfile.h
 	$(Q)sed -e 's/InitializeBoard()/GOLInit()/' \

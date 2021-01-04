@@ -70,7 +70,7 @@ ifdef EXTERNAL_MEMORY
 	$(Q)printf "};\n" >> $(GENERATED_DIR)/Resources.hex.c
 else
 	$(Q)$(GRC) -XML "$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/Resources/$(COLOR_DEPTH)BPP/InternalResourceColorDepth_$(COLOR_DEPTH)BPPMode.xml" -B XC32 -O $(GENERATED_DIR)/Resources.c
-	$(Q)sed -n -e '/Screen1\?_[148]BPP_Palette_Data/,$$p;' \
+	$(Q)sed -n -e ' /Screen1\?_[148]BPP_Palette_Data/,$$p;' \
 		"$(MLA_INSTALL_PATH)/Graphics/PIC24F DA/Color Depth/InternalResourceXC16_$(COLOR_DEPTH)BPPMode.c" \
 		>> $(GENERATED_DIR)/Resources.c
 endif
