@@ -89,6 +89,7 @@ endif
 		-e 's/while((tick - prevTick) < /DelayMs(/' \
 		-e 's/^ \{12\}WAIT_UNTIL_FINISH.*\&mchpIcon0.*/& DelayMs(2);/' \
 		-e 's/PutPixel(.*);/& } DelayMs(0); {/' \
+		-e 's/y = GetMaxX()/y = DISP_VER_RESOLUTION/' \
 		"$(MLA_INSTALL_PATH)/Graphics/Multi-App/MainDemo.c"              > $(GENERATED_DIR)/MainDemo.c
 	$(Q)sed -e 's/#include <p24Fxxxx.h>//' \
 		"$(MLA_INSTALL_PATH)/Graphics/Multi-App/JPEGDemo.h"              > $(GENERATED_DIR)/JPEGDemo.h
