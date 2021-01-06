@@ -23,6 +23,7 @@
   #define __PIC24FJ256DA210__ // for using CopyBlock()
   #define GFX_DISPLAY_BUFFER_START_ADDRESS 0
   #define TMR3 (rand() & 0xFFFF) // for the noise generator
+  //#define DISP_ORIENTATION 90
 
 #elif defined(TARGET_ObjectLayer)
   #define MEB_BOARD
@@ -49,7 +50,9 @@
 
 /* display layout, normally defined in HardwareProfile.h */
 
-#define DISP_ORIENTATION    0
+#ifndef DISP_ORIENTATION
+  #define DISP_ORIENTATION 0
+#endif
 
 #ifndef DISP_HOR_RESOLUTION
   #define DISP_HOR_RESOLUTION 320
