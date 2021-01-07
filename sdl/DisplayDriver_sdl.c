@@ -532,11 +532,6 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 
 	rect = GetApplicationRect(GetRectFromNativeData(dstOffset, width, height));
 
-	rect.x *= scaleFactor;
-	rect.y *= scaleFactor;
-	rect.w *= scaleFactor;
-	rect.h *= scaleFactor;
-
 	/* write pixel block from buffer into destination */
 
 	w_pixfmt = SDL_AllocFormat(w_pixfmtVal);
@@ -545,13 +540,13 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 		return 1;
 	}
 
-	for (y = rect.y; y < rect.y + rect.h; y += scaleFactor) {
-		for (x = rect.x; x < rect.x + rect.w; x += scaleFactor) {
+	for (y = rect.y; y < rect.y + rect.h; y++) {
+		for (x = rect.x; x < rect.x + rect.w; x++) {
 			Uint8 r, g, b;
 
-			SDL_GetRGB(pixels[(y - rect.y) * rect.w + (x - rect.x)], w_pixfmt, &r, &g, &b);
+			SDL_GetRGB(pixels[(y - rect.y) * scaleFactor * rect.w * scaleFactor + (x - rect.x) * scaleFactor], w_pixfmt, &r, &g, &b);
 			SDL_SetRenderDrawColor(renderer, r, g, b, 255);
-			SDL_RenderDrawPoint(renderer, x / scaleFactor, y / scaleFactor);
+			SDL_RenderDrawPoint(renderer, x, y);
 		}
 	}
 
