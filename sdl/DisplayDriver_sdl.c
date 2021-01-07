@@ -88,6 +88,8 @@ static Uint8 scaleFactor = MLATOR_SCALE_FACTOR_DEFAULT;
 static void Cleanup(void);
 static void ActivateCurrentColor(void);
 static void ScheduleScreenUpdate(void);
+static SDL_Rect GetRectFromNativeData(DWORD offset, WORD width, WORD height);
+static SDL_Rect GetApplicationRect(SDL_Rect nativeRect);
 
 static void Cleanup(void)
 {
@@ -125,6 +127,83 @@ static void ActivateCurrentColor(void)
 
 	SDL_GetRGB(GetColor(), pixfmt, &r, &g, &b);
 	SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+}
+
+/*
+ * Get the rectangle from HW display memory address offset and width/height.
+ *
+ * These three parameters always relate to the HW display with native
+ * orientation (not rotated) because the display buffer on HW and its pitch
+ * (for pixel arrangement) is not affected by the rotated application.
+ *
+ * DISP_ORIENTATION is not applied here, the resulting rectangle is oriented
+ * like the native orientation of the HW display.
+ */
+static SDL_Rect GetRectFromNativeData(DWORD offset, WORD width, WORD height)
+{
+	SDL_Rect r;
+
+	r.x = offset % DISP_HOR_RESOLUTION;
+	r.y = offset / DISP_HOR_RESOLUTION;
+	r.w = width;
+	r.h = height;
+
+	return r;
+}
+
+/*
+ * Transform rectangle coordinates/dimensions from native orientation of the HW
+ * display to orientation of the SW application window.
+ *
+ * The SW application content is rotated counterclockwise, the HW display
+ * clockwise by DISP_ORIENTATION degrees. In below graphics the screen is
+ * always drawn like the HW display with native orientation (not rotated).
+ * The single letters A/B/C should also be rotated counterclockwise of course,
+ * but that's not possible with simple ASCII.
+ *
+ * Symbols for origin (left/top) of the rectangle and screen:
+ *   o: HW display
+ *   x: SW application window
+ *
+ *     DISP_ORIENTATION=0          DISP_ORIENTATION=90        DISP_ORIENTATION=180        DISP_ORIENTATION=270
+ * o------------------------+  o------------------------+  o------------------------+  o------------------------x
+ * |                        |  |                        |  |                        |  |    +---x               |
+ * |                        |  |                        |  |               o-----+  |  |    | A |               |
+ * |                        |  |                        |  |               | CBA |  |  |    | B |               |
+ * |                        |  |               o---+    |  |               +-----x  |  |    | C |               |
+ * |  o-----+               |  |               | C |    |  |                        |  |    +---o               |
+ * |  | ABC |               |  |               | B |    |  |                        |  |                        |
+ * |  +-----+               |  |               | A |    |  |                        |  |                        |
+ * |                        |  |               x---+    |  |                        |  |                        |
+ * +------------------------+  x------------------------+  +------------------------x  +------------------------+
+ */
+static SDL_Rect GetApplicationRect(SDL_Rect nativeRect)
+{
+	SDL_Rect appRect;
+
+	#if (DISP_ORIENTATION == 90)
+	appRect.x = DISP_VER_RESOLUTION - nativeRect.y - nativeRect.h;
+	appRect.y = nativeRect.x;
+	#elif (DISP_ORIENTATION == 180)
+	appRect.x = DISP_HOR_RESOLUTION - nativeRect.x - nativeRect.w;
+	appRect.y = DISP_VER_RESOLUTION - nativeRect.y - nativeRect.h;
+	#elif (DISP_ORIENTATION == 270)
+	appRect.x = nativeRect.y;
+	appRect.y = DISP_HOR_RESOLUTION - nativeRect.x - nativeRect.w;
+	#else
+	appRect.x = nativeRect.x;
+	appRect.y = nativeRect.y;
+	#endif
+
+	#if (DISP_ORIENTATION == 90) || (DISP_ORIENTATION == 270)
+	appRect.w = nativeRect.h;
+	appRect.h = nativeRect.w;
+	#else
+	appRect.w = nativeRect.w;
+	appRect.h = nativeRect.h;
+	#endif
+
+	return appRect;
 }
 
 /* For performance reasons, the screen should not be updated after each drawing
@@ -426,10 +505,16 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 	SDL_PixelFormat *w_pixfmt;
 	int x, y;
 
-	rect.x = (srcOffset % DISP_HOR_RESOLUTION) * scaleFactor;
-	rect.y = (srcOffset / DISP_HOR_RESOLUTION) * scaleFactor;
-	rect.w = width * scaleFactor;
-	rect.h = height * scaleFactor;
+	/* set source block */
+
+	rect = GetApplicationRect(GetRectFromNativeData(srcOffset, width, height));
+
+	rect.x *= scaleFactor;
+	rect.y *= scaleFactor;
+	rect.w *= scaleFactor;
+	rect.h *= scaleFactor;
+
+	/* read pixel block from source into buffer */
 
 	w_pixfmtVal = SDL_GetWindowPixelFormat(window);
 	if (w_pixfmtVal == SDL_PIXELFORMAT_UNKNOWN) {
@@ -443,8 +528,16 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 		return 1;
 	}
 
-	rect.x = (dstOffset % DISP_HOR_RESOLUTION) * scaleFactor;
-	rect.y = (dstOffset / DISP_HOR_RESOLUTION) * scaleFactor;
+	/* set destination block */
+
+	rect = GetApplicationRect(GetRectFromNativeData(dstOffset, width, height));
+
+	rect.x *= scaleFactor;
+	rect.y *= scaleFactor;
+	rect.w *= scaleFactor;
+	rect.h *= scaleFactor;
+
+	/* write pixel block from buffer into destination */
 
 	w_pixfmt = SDL_AllocFormat(w_pixfmtVal);
 	if (w_pixfmt == NULL) {

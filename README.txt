@@ -48,6 +48,7 @@ Features
 ========
 
 Implemented:
+- DISP_ORIENTATION 0, 90, 180, 270
 - COLOR_DEPTH 1, 4, 8, 16, 24
 - USE_PALETTE
 - USE_TRANSPARENT_COLOR
