@@ -642,7 +642,7 @@ void MLAtor_TakeScreenshot(void)
 
 	Uint32 w_pixfmtVal;
 	SDL_PixelFormat *w_pixfmt;
-	SDL_Surface *sshot;
+	SDL_Surface *sshot, *sshotNormalized;
 
 	/* create filename and abort if file already exists, format: <MLATOR_SCREENSHOT_PREFIX>_yyyymmddThhmmss.bmp */
 
@@ -672,7 +672,7 @@ void MLAtor_TakeScreenshot(void)
 		return;
 	}
 
-	/* read pixels into SDL surface and save to bitmap file */
+	/* read pixels (possibly scaled) into SDL surface, normalize the dimensions and save to bitmap file */
 
 	w_pixfmtVal = SDL_GetWindowPixelFormat(window);
 	if (w_pixfmtVal == SDL_PIXELFORMAT_UNKNOWN) {
@@ -701,10 +701,28 @@ void MLAtor_TakeScreenshot(void)
 		return;
 	}
 
-	if (SDL_SaveBMP(sshot, sshotFilename)) {
+	sshotNormalized = SDL_CreateRGBSurface(0, GetMaxX() + 1, GetMaxY() + 1,
+			w_pixfmt->BitsPerPixel, w_pixfmt->Rmask, w_pixfmt->Gmask, w_pixfmt->Bmask, w_pixfmt->Amask);
+	if (sshotNormalized == NULL) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not create screenshot surface for normalization: %s\n", SDL_GetError());
+		SDL_FreeSurface(sshot);
+		SDL_FreeFormat(w_pixfmt);
+		return;
+	}
+
+	if (SDL_BlitScaled(sshot, NULL, sshotNormalized, NULL)) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not normalize screenshot surface: %s\n", SDL_GetError());
+		SDL_FreeSurface(sshotNormalized);
+		SDL_FreeSurface(sshot);
+		SDL_FreeFormat(w_pixfmt);
+		return;
+	}
+
+	if (SDL_SaveBMP(sshotNormalized, sshotFilename)) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not save screenshot to .bmp file: %s\n", SDL_GetError());
 	}
 
+	SDL_FreeSurface(sshotNormalized);
 	SDL_FreeSurface(sshot);
 	SDL_FreeFormat(w_pixfmt);
 }
