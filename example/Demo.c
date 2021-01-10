@@ -5,6 +5,7 @@
 
 #define ID_BUTTON 0
 
+static BOOL drawnOnce;
 static BOOL showDecoration, showDecorationPrev;
 
 static WORD DrawOrHideDecoration(void)
@@ -57,6 +58,68 @@ static WORD DrawOrHideDecoration(void)
 	return 1;
 }
 
+static WORD CopyButtonText(void)
+{
+	DWORD srcOffset, dstOffset;
+
+	WORD appSrcX, appSrcY, appDstX, appDstY, appWidth, appHeight;
+	WORD srcX, srcY, dstX, dstY, width, height;
+
+	/* Set size and position with orientation of the SW application. */
+
+	// block to be copied, contains text "Button" from the button widget
+	appWidth = 2 * 35;
+	appHeight = 2 * 10;
+	appSrcX = GetMaxX() / 2 + 1 - 35;
+	appSrcY = GetMaxY() / 2 + 1 - 10;
+
+	// destination block moved down with 1px space to the bottom
+	appDstX = appSrcX;
+	appDstY = GetMaxY() - appHeight;
+
+	/* Transform size and position to native orientation of the HW display.
+	 * Formulas adopted from GetApplicationRect() in DisplayDriver_sdl.c.
+	 * See also CopyWindow() in MLA/Microchip/Graphics/Drivers/mchpGfxDrv.c */
+
+	#if (DISP_ORIENTATION == 90) || (DISP_ORIENTATION == 270)
+	width = appHeight;
+	height = appWidth;
+	#else
+	width = appWidth;
+	height = appHeight;
+	#endif
+
+	#if (DISP_ORIENTATION == 90)
+	srcX = appSrcY;
+	srcY = DISP_VER_RESOLUTION - appSrcX - height;
+	dstX = appDstY;
+	dstY = DISP_VER_RESOLUTION - appDstX - height;
+	#elif (DISP_ORIENTATION == 180)
+	srcX = DISP_HOR_RESOLUTION - appSrcX - width;
+	srcY = DISP_VER_RESOLUTION - appSrcY - height;
+	dstX = DISP_HOR_RESOLUTION - appDstX - width;
+	dstY = DISP_VER_RESOLUTION - appDstY - height;
+	#elif (DISP_ORIENTATION == 270)
+	srcX = DISP_HOR_RESOLUTION - appSrcY - width;
+	srcY = appSrcX;
+	dstX = DISP_HOR_RESOLUTION - appDstY - width;
+	dstY = appDstX;
+	#else
+	srcX = appSrcX;
+	srcY = appSrcY;
+	dstX = appDstX;
+	dstY = appDstY;
+	#endif
+
+	srcOffset = (DWORD)(srcY * (DWORD)DISP_HOR_RESOLUTION) + srcX;
+	dstOffset = (DWORD)(dstY * (DWORD)DISP_HOR_RESOLUTION) + dstX;
+
+	if (!CopyBlock(0, 0, srcOffset, dstOffset, width, height))
+		return 0;
+
+	return 1;
+}
+
 void CreateDemo(void)
 {
 	GOLFree();
@@ -70,6 +133,7 @@ void CreateDemo(void)
 		GetMaxY() * 2 / 3,
 		0, BTN_DRAW, NULL, "Button", NULL);
 
+	drawnOnce = FALSE;
 	showDecoration = FALSE;
 	showDecorationPrev = TRUE; // force redraw
 }
@@ -89,6 +153,12 @@ WORD DemoMsgCallback(WORD objMsg, OBJ_HEADER *pObj, GOL_MSG *pMsg)
 
 WORD DemoDrawCallback(void)
 {
+	if (!drawnOnce) {
+		if (!CopyButtonText())
+			return 0;
+		drawnOnce = TRUE;
+	}
+
 	if (!DrawOrHideDecoration())
 		return 0;
 
