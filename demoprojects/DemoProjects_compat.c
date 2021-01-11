@@ -65,7 +65,9 @@ void DelayMs(UINT16 ms)
 {
 #ifdef COMPAT_GENERAL_EVENTS_HOOK
 	SDL_Event event;
+#endif
 
+#ifdef COMPAT_GENERAL_EVENTS_HOOK
 	while (SDL_PollEvent(&event))
 		HandleGeneralEvent(&event);
 #endif
