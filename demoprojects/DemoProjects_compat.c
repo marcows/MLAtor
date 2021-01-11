@@ -63,16 +63,31 @@ SHORT TouchGetX(void)
 
 void DelayMs(UINT16 ms)
 {
+	Uint32 timeout;
+
 #ifdef COMPAT_GENERAL_EVENTS_HOOK
 	SDL_Event event;
 #endif
+
+	// Already set the timeout here, then the duration of the event polling
+	// is not added additionally.
+	timeout = SDL_GetTicks() + ms;
 
 #ifdef COMPAT_GENERAL_EVENTS_HOOK
 	while (SDL_PollEvent(&event))
 		HandleGeneralEvent(&event);
 #endif
 
-	SDL_Delay(ms);
+	// perform the delay
+	if (ms == 0) {
+		// no delay
+	} else if (ms <= 30) {
+		// active waiting to improve accuracy with short delays
+		while (!SDL_TICKS_PASSED(SDL_GetTicks(), timeout)) { }
+	} else {
+		// passive waiting, inaccuracy is system dependent
+		SDL_Delay(ms);
+	}
 }
 
 /* this hook is invoked periodically at nonconstant intervals */
