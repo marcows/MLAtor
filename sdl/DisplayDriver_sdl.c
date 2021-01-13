@@ -501,9 +501,7 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 	static Uint32 pixels[DISP_HOR_RESOLUTION * MLATOR_SCALE_FACTOR_MAX * DISP_VER_RESOLUTION * MLATOR_SCALE_FACTOR_MAX];
 	SDL_Rect rect;
 	Uint32 w_pixfmtVal;
-
-	SDL_PixelFormat *w_pixfmt;
-	int x, y;
+	SDL_Texture *texture;
 
 	/* set source block */
 
@@ -534,23 +532,25 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 
 	/* write pixel block from buffer into destination */
 
-	w_pixfmt = SDL_AllocFormat(w_pixfmtVal);
-	if (w_pixfmt == NULL) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not allocate window pixel format: %s\n", SDL_GetError());
+	texture = SDL_CreateTexture(renderer, w_pixfmtVal, SDL_TEXTUREACCESS_STREAMING, rect.w * scaleFactor, rect.h * scaleFactor);
+	if (texture == NULL) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not create texture: %s\n", SDL_GetError());
 		return 1;
 	}
 
-	for (y = rect.y; y < rect.y + rect.h; y++) {
-		for (x = rect.x; x < rect.x + rect.w; x++) {
-			Uint8 r, g, b;
-
-			SDL_GetRGB(pixels[(y - rect.y) * scaleFactor * rect.w * scaleFactor + (x - rect.x) * scaleFactor], w_pixfmt, &r, &g, &b);
-			SDL_SetRenderDrawColor(renderer, r, g, b, 255);
-			SDL_RenderDrawPoint(renderer, x, y);
-		}
+	if (SDL_UpdateTexture(texture, NULL, pixels, rect.w * scaleFactor * sizeof(pixels[0])) != 0) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not update texture: %s\n", SDL_GetError());
+		SDL_DestroyTexture(texture);
+		return 1;
 	}
 
-	SDL_FreeFormat(w_pixfmt);
+	if (SDL_RenderCopy(renderer, texture, NULL, &rect) != 0) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not copy the texture to the renderer: %s\n", SDL_GetError());
+		SDL_DestroyTexture(texture);
+		return 1;
+	}
+
+	SDL_DestroyTexture(texture);
 
 	ScheduleScreenUpdate();
 	return 1;
