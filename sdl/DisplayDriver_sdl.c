@@ -70,6 +70,7 @@ volatile BYTE blDisplayUpdatePending;
 // SDL
 static SDL_Window *window;
 static SDL_Renderer *renderer;
+static SDL_Texture *texture;
 static SDL_PixelFormat *pixfmt;
 static Uint32 redrawEvent;
 
@@ -111,6 +112,9 @@ static void Cleanup(void)
 
 	if (pixfmt != NULL)
 		SDL_FreeFormat(pixfmt);
+
+	if (texture != NULL)
+		SDL_DestroyTexture(texture);
 
 	if (renderer != NULL)
 		SDL_DestroyRenderer(renderer);
@@ -222,6 +226,8 @@ static void ScheduleScreenUpdate(void)
 
 void ResetDevice(void)
 {
+	Uint32 w_pixfmtVal;
+
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize SDL: %s\n", SDL_GetError());
 		exit(EXIT_FAILURE);
@@ -241,6 +247,19 @@ void ResetDevice(void)
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 	if (renderer == NULL) {
 		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not create renderer: %s\n", SDL_GetError());
+		exit(EXIT_FAILURE);
+	}
+
+	w_pixfmtVal = SDL_GetWindowPixelFormat(window);
+	if (w_pixfmtVal == SDL_PIXELFORMAT_UNKNOWN) {
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Could not determine window pixel format, fall back to \"RGB 888\": %s\n", SDL_GetError());
+		w_pixfmtVal = SDL_PIXELFORMAT_RGB888;
+	}
+
+	texture = SDL_CreateTexture(renderer, w_pixfmtVal, SDL_TEXTUREACCESS_STREAMING,
+			(GetMaxX() + 1) * scaleFactor, (GetMaxY() + 1) * scaleFactor);
+	if (texture == NULL) {
+		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not create texture: %s\n", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
 
@@ -499,9 +518,8 @@ void UpdateDisplayNow(void)
 WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, WORD width, WORD height)
 {
 	static Uint32 pixels[DISP_HOR_RESOLUTION * MLATOR_SCALE_FACTOR_MAX * DISP_VER_RESOLUTION * MLATOR_SCALE_FACTOR_MAX];
-	SDL_Rect rect;
+	SDL_Rect rect, pixRect;
 	Uint32 w_pixfmtVal;
-	SDL_Texture *texture;
 
 	/* set source block */
 
@@ -512,6 +530,11 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 	rect.w *= scaleFactor;
 	rect.h *= scaleFactor;
 
+	// pixel rectangle inside pixels array and texture begins at (0,0) and is scaled
+	pixRect = rect;
+	pixRect.x = 0;
+	pixRect.y = 0;
+
 	/* read pixel block from source into buffer */
 
 	w_pixfmtVal = SDL_GetWindowPixelFormat(window);
@@ -520,7 +543,7 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 		w_pixfmtVal = SDL_PIXELFORMAT_RGB888;
 	}
 
-	if (SDL_RenderReadPixels(renderer, &rect, w_pixfmtVal, pixels, rect.w * sizeof(pixels[0])) != 0)
+	if (SDL_RenderReadPixels(renderer, &rect, w_pixfmtVal, pixels, pixRect.w * sizeof(pixels[0])) != 0)
 	{
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not read pixels: %s\n", SDL_GetError());
 		return 1;
@@ -532,25 +555,15 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 
 	/* write pixel block from buffer into destination */
 
-	texture = SDL_CreateTexture(renderer, w_pixfmtVal, SDL_TEXTUREACCESS_STREAMING, rect.w * scaleFactor, rect.h * scaleFactor);
-	if (texture == NULL) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not create texture: %s\n", SDL_GetError());
-		return 1;
-	}
-
-	if (SDL_UpdateTexture(texture, NULL, pixels, rect.w * scaleFactor * sizeof(pixels[0])) != 0) {
+	if (SDL_UpdateTexture(texture, &pixRect, pixels, pixRect.w * sizeof(pixels[0])) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not update texture: %s\n", SDL_GetError());
-		SDL_DestroyTexture(texture);
 		return 1;
 	}
 
-	if (SDL_RenderCopy(renderer, texture, NULL, &rect) != 0) {
+	if (SDL_RenderCopy(renderer, texture, &pixRect, &rect) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not copy the texture to the renderer: %s\n", SDL_GetError());
-		SDL_DestroyTexture(texture);
 		return 1;
 	}
-
-	SDL_DestroyTexture(texture);
 
 	ScheduleScreenUpdate();
 	return 1;
