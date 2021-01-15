@@ -88,9 +88,9 @@ static Uint8 scaleFactor = MLATOR_SCALE_FACTOR_DEFAULT;
 /* local helper functions */
 static void Cleanup(void);
 static void ActivateCurrentColor(void);
-static void ScheduleScreenUpdate(void);
 static SDL_Rect GetRectFromNativeData(DWORD offset, WORD width, WORD height);
 static SDL_Rect GetApplicationRect(SDL_Rect nativeRect);
+static void ScheduleScreenUpdate(void);
 
 static void Cleanup(void)
 {
