@@ -17,10 +17,6 @@
 #define MLATOR_SCALE_FACTOR_DEFAULT 1
 #endif
 
-#ifndef MLATOR_SCALE_FACTOR_MAX
-#define MLATOR_SCALE_FACTOR_MAX 3
-#endif
-
 #define xstr(s) str(s)
 #define str(s) #s
 
@@ -87,10 +83,12 @@ static Uint8 scaleFactor = MLATOR_SCALE_FACTOR_DEFAULT;
 
 /* local helper functions */
 static void Cleanup(void);
+static void SetRenderTarget(SDL_Texture *t);
 static void ActivateCurrentColor(void);
 static SDL_Rect GetRectFromNativeData(DWORD offset, WORD width, WORD height);
 static SDL_Rect GetApplicationRect(SDL_Rect nativeRect);
 static void ScheduleScreenUpdate(void);
+static void ScreenUpdate(void);
 
 static void Cleanup(void)
 {
@@ -123,6 +121,14 @@ static void Cleanup(void)
 		SDL_DestroyWindow(window);
 
 	SDL_Quit();
+}
+
+static void SetRenderTarget(SDL_Texture *t)
+{
+	if (SDL_SetRenderTarget(renderer, t) != 0) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not set the %s as rendering target: %s\n",
+				t == NULL ? "screen" : "texture", SDL_GetError());
+	}
 }
 
 static void ActivateCurrentColor(void)
@@ -222,6 +228,29 @@ static void ScheduleScreenUpdate(void)
 	}
 }
 
+/*
+ * Update the screen with the currently rendered content.
+ *
+ * The texture contains the rendered content. To copy that content to the
+ * screen the current rendering target has to be set to the default first.
+ * After that it has to be switched back for rendering to the texture again.
+ */
+static void ScreenUpdate(void)
+{
+	SetRenderTarget(NULL);
+
+	if (SDL_RenderCopy(renderer, texture, NULL, NULL)) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not copy the texture to the screen rendering target: %s\n", SDL_GetError());
+	}
+	SDL_RenderPresent(renderer);
+
+	// according to the SDL docs, clearing is strongly encouraged now
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderClear(renderer);
+
+	SetRenderTarget(texture);
+}
+
 /* mandatory functions for Microchip Graphics Library */
 
 void ResetDevice(void)
@@ -244,10 +273,23 @@ void ResetDevice(void)
 		exit(EXIT_FAILURE);
 	}
 
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE | SDL_RENDERER_TARGETTEXTURE);
 	if (renderer == NULL) {
 		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not create renderer: %s\n", SDL_GetError());
 		exit(EXIT_FAILURE);
+	}
+
+	if (!SDL_RenderTargetSupported(renderer)) {
+		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Rendering to texture not supported: %s\n", SDL_GetError());
+		exit(EXIT_FAILURE);
+	}
+
+	// Set the scale while the render target is NULL (= default = window),
+	// otherwise it will overwrite the data from the rendering texture.
+	if (SDL_RenderSetScale(renderer, scaleFactor, scaleFactor)) {
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Could not scale rendering: %s\n", SDL_GetError());
+		scaleFactor = 1;
+		// TODO: change window size and redraw content
 	}
 
 	w_pixfmtVal = SDL_GetWindowPixelFormat(window);
@@ -256,8 +298,8 @@ void ResetDevice(void)
 		w_pixfmtVal = SDL_PIXELFORMAT_RGB888;
 	}
 
-	texture = SDL_CreateTexture(renderer, w_pixfmtVal, SDL_TEXTUREACCESS_STREAMING,
-			(GetMaxX() + 1) * scaleFactor, (GetMaxY() + 1) * scaleFactor);
+	texture = SDL_CreateTexture(renderer, w_pixfmtVal, SDL_TEXTUREACCESS_TARGET,
+			GetMaxX() + 1, GetMaxY() + 1);
 	if (texture == NULL) {
 		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not create texture: %s\n", SDL_GetError());
 		exit(EXIT_FAILURE);
@@ -323,16 +365,13 @@ void ResetDevice(void)
 	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
 	#endif
 
-	if (SDL_RenderSetScale(renderer, scaleFactor, scaleFactor)) {
-		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Could not scale rendering: %s\n", SDL_GetError());
-		scaleFactor = 1;
-		// TODO: change window size and redraw content
-	}
+	SetRenderTarget(texture);
 
 	SetColor(BLACK);
+
 	ActivateCurrentColor();
 	SDL_RenderClear(renderer);
-	SDL_RenderPresent(renderer);
+	ScreenUpdate();
 }
 
 void PutPixel(SHORT x, SHORT y)
@@ -350,8 +389,8 @@ GFX_COLOR GetPixel(SHORT x, SHORT y)
 	SDL_PixelFormat *w_pixfmt;
 	Uint8 r, g, b;
 
-	rect.x = x * scaleFactor;
-	rect.y = y * scaleFactor;
+	rect.x = x;
+	rect.y = y;
 	rect.w = 1;
 	rect.h = 1;
 
@@ -517,50 +556,13 @@ void UpdateDisplayNow(void)
  * and dstAddr are unused. */
 WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, WORD width, WORD height)
 {
-	static Uint32 pixels[DISP_HOR_RESOLUTION * MLATOR_SCALE_FACTOR_MAX * DISP_VER_RESOLUTION * MLATOR_SCALE_FACTOR_MAX];
-	SDL_Rect rect, pixRect;
-	Uint32 w_pixfmtVal;
+	SDL_Rect srcRect, dstRect;
 
-	/* set source block */
+	srcRect = GetApplicationRect(GetRectFromNativeData(srcOffset, width, height));
+	dstRect = GetApplicationRect(GetRectFromNativeData(dstOffset, width, height));
 
-	rect = GetApplicationRect(GetRectFromNativeData(srcOffset, width, height));
-
-	rect.x *= scaleFactor;
-	rect.y *= scaleFactor;
-	rect.w *= scaleFactor;
-	rect.h *= scaleFactor;
-
-	// pixel rectangle inside pixels array and texture begins at (0,0) and is scaled
-	pixRect = rect;
-	pixRect.x = 0;
-	pixRect.y = 0;
-
-	/* read pixel block from source into buffer */
-
-	w_pixfmtVal = SDL_GetWindowPixelFormat(window);
-	if (w_pixfmtVal == SDL_PIXELFORMAT_UNKNOWN) {
-		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Could not determine window pixel format, fall back to \"RGB 888\": %s\n", SDL_GetError());
-		w_pixfmtVal = SDL_PIXELFORMAT_RGB888;
-	}
-
-	if (SDL_RenderReadPixels(renderer, &rect, w_pixfmtVal, pixels, pixRect.w * sizeof(pixels[0])) != 0)
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not read pixels: %s\n", SDL_GetError());
-		return 1;
-	}
-
-	/* set destination block */
-
-	rect = GetApplicationRect(GetRectFromNativeData(dstOffset, width, height));
-
-	/* write pixel block from buffer into destination */
-
-	if (SDL_UpdateTexture(texture, &pixRect, pixels, pixRect.w * sizeof(pixels[0])) != 0) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not update texture: %s\n", SDL_GetError());
-		return 1;
-	}
-
-	if (SDL_RenderCopy(renderer, texture, &pixRect, &rect) != 0) {
+	// texture and current rendering target are the same
+	if (SDL_RenderCopy(renderer, texture, &srcRect, &dstRect) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not copy the texture to the renderer: %s\n", SDL_GetError());
 		return 1;
 	}
@@ -602,7 +604,7 @@ void HandleGeneralEvent(SDL_Event *event)
 	switch (event->type) {
 	case SDL_WINDOWEVENT:
 		if (event->window.event == SDL_WINDOWEVENT_EXPOSED) {
-			SDL_RenderPresent(renderer);
+			ScreenUpdate();
 		}
 		break;
 
@@ -622,7 +624,7 @@ void HandleGeneralEvent(SDL_Event *event)
 
 	default:
 		if (event->type == redrawEvent) {
-			SDL_RenderPresent(renderer);
+			ScreenUpdate();
 		} else {
 			SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Unhandled SDL event: 0x%x\n", event->type);
 		}
@@ -655,7 +657,7 @@ void MLAtor_TakeScreenshot(void)
 
 	Uint32 w_pixfmtVal;
 	SDL_PixelFormat *w_pixfmt;
-	SDL_Surface *sshot, *sshotNormalized;
+	SDL_Surface *sshot;
 
 	/* create filename and abort if file already exists, format: <MLATOR_SCREENSHOT_PREFIX>_yyyymmddThhmmss.bmp */
 
@@ -685,7 +687,7 @@ void MLAtor_TakeScreenshot(void)
 		return;
 	}
 
-	/* read pixels (possibly scaled) into SDL surface, normalize the dimensions and save to bitmap file */
+	/* read pixels into SDL surface and save to bitmap file */
 
 	w_pixfmtVal = SDL_GetWindowPixelFormat(window);
 	if (w_pixfmtVal == SDL_PIXELFORMAT_UNKNOWN) {
@@ -699,7 +701,7 @@ void MLAtor_TakeScreenshot(void)
 		return;
 	}
 
-	sshot = SDL_CreateRGBSurface(0, (GetMaxX() + 1) * scaleFactor, (GetMaxY() + 1) * scaleFactor,
+	sshot = SDL_CreateRGBSurface(0, (GetMaxX() + 1), (GetMaxY() + 1),
 			w_pixfmt->BitsPerPixel, w_pixfmt->Rmask, w_pixfmt->Gmask, w_pixfmt->Bmask, w_pixfmt->Amask);
 	if (sshot == NULL) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not create screenshot surface: %s\n", SDL_GetError());
@@ -714,28 +716,10 @@ void MLAtor_TakeScreenshot(void)
 		return;
 	}
 
-	sshotNormalized = SDL_CreateRGBSurface(0, GetMaxX() + 1, GetMaxY() + 1,
-			w_pixfmt->BitsPerPixel, w_pixfmt->Rmask, w_pixfmt->Gmask, w_pixfmt->Bmask, w_pixfmt->Amask);
-	if (sshotNormalized == NULL) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not create screenshot surface for normalization: %s\n", SDL_GetError());
-		SDL_FreeSurface(sshot);
-		SDL_FreeFormat(w_pixfmt);
-		return;
-	}
-
-	if (SDL_BlitScaled(sshot, NULL, sshotNormalized, NULL)) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not normalize screenshot surface: %s\n", SDL_GetError());
-		SDL_FreeSurface(sshotNormalized);
-		SDL_FreeSurface(sshot);
-		SDL_FreeFormat(w_pixfmt);
-		return;
-	}
-
-	if (SDL_SaveBMP(sshotNormalized, sshotFilename)) {
+	if (SDL_SaveBMP(sshot, sshotFilename)) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not save screenshot to .bmp file: %s\n", SDL_GetError());
 	}
 
-	SDL_FreeSurface(sshotNormalized);
 	SDL_FreeSurface(sshot);
 	SDL_FreeFormat(w_pixfmt);
 }
