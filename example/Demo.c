@@ -1,6 +1,10 @@
 #include "GenericTypeDefs.h"
 #include "Graphics/Graphics.h"
 
+#ifdef USE_TRANSITION_EFFECTS
+#include "Graphics/Transitions.h"
+#endif
+
 #include "Demo.h"
 
 #define ID_BUTTON 0
@@ -154,8 +158,36 @@ WORD DemoMsgCallback(WORD objMsg, OBJ_HEADER *pObj, GOL_MSG *pMsg)
 	if (GetObjID(pObj) == ID_BUTTON) {
 		if (objMsg == BTN_MSG_PRESSED) {
 			showDecoration = TRUE;
+
+			#ifdef USE_TRANSITION_EFFECTS
+			// Expand the pressed button with the surrounding
+			// decoration.
+			GFXSetupTransition(
+					pObj->left - 5 -1,
+					pObj->top - 5 -1,
+					pObj->right + 5 +1,
+					pObj->bottom + 5 +1,
+					EXPANDING_LINE,
+					3 /* ms */,
+					1 /* px */,
+					HORIZONTAL);
+			#endif
 		} else if (objMsg == BTN_MSG_RELEASED || objMsg == BTN_MSG_CANCELPRESS) {
 			showDecoration = FALSE;
+
+			#ifdef USE_TRANSITION_EFFECTS
+			// Push away the pressed button, only the inner face
+			// without its 3D frame and without the decoration.
+			GFXSetupTransition(
+					pObj->left + GOL_EMBOSS_SIZE,
+					pObj->top + GOL_EMBOSS_SIZE,
+					pObj->right - GOL_EMBOSS_SIZE,
+					pObj->bottom - GOL_EMBOSS_SIZE,
+					PUSH,
+					2 /* ms */,
+					2 /* px */,
+					TOP_TO_BOTTOM);
+			#endif
 		}
 	}
 
