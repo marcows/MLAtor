@@ -68,10 +68,10 @@ static WORD CopyButtonText(void)
 	/* Set size and position with orientation of the SW application. */
 
 	// block to be copied, contains text "Button" from the button widget
-	appWidth = 2 * 35;
-	appHeight = 2 * 10;
-	appSrcX = GetMaxX() / 2 + 1 - 35;
-	appSrcY = GetMaxY() / 2 + 1 - 10;
+	appWidth = 2 * 34;
+	appHeight = 2 * 9;
+	appSrcX = GetMaxX() / 2 + 1 - 34;
+	appSrcY = GetMaxY() / 2 + 1 - 9;
 
 	// destination block moved down with 1px space to the bottom
 	appDstX = appSrcX;
@@ -127,8 +127,8 @@ void CreateDemo(void)
 	ClearDevice();
 
 	BtnCreate(ID_BUTTON,
-		GetMaxX() * 1 / 4,
-		GetMaxY() * 1 / 3,
+		GetMaxX() * 1 / 4 + 1,
+		GetMaxY() * 1 / 3 + 1,
 		GetMaxX() * 3 / 4,
 		GetMaxY() * 2 / 3,
 		0, BTN_DRAW, NULL, "Button", NULL);
