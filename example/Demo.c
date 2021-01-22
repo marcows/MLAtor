@@ -60,18 +60,24 @@ static WORD DrawOrHideDecoration(void)
 
 static WORD CopyButtonText(void)
 {
+	OBJ_HEADER *pObj;
+
 	DWORD srcOffset, dstOffset;
 
 	WORD appSrcX, appSrcY, appDstX, appDstY, appWidth, appHeight;
 	WORD srcX, srcY, dstX, dstY, width, height;
+
+	pObj = GOLFindObject(ID_BUTTON);
+	if (pObj == NULL)
+		return 1;
 
 	/* Set size and position with orientation of the SW application. */
 
 	// block to be copied, contains text "Button" from the button widget
 	appWidth = 2 * 34;
 	appHeight = 2 * 9;
-	appSrcX = GetMaxX() / 2 + 1 - 34;
-	appSrcY = GetMaxY() / 2 + 1 - 9;
+	appSrcX = pObj->left + (pObj->right - pObj->left + 1) / 2 - 34;
+	appSrcY = pObj->top + (pObj->bottom - pObj->top + 1) / 2 - 9;
 
 	// destination block moved down with 1px space to the bottom
 	appDstX = appSrcX;
