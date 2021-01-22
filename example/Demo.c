@@ -133,10 +133,10 @@ void CreateDemo(void)
 	ClearDevice();
 
 	BtnCreate(ID_BUTTON,
-		GetMaxX() * 1 / 4 + 1,
-		GetMaxY() * 1 / 3 + 1,
-		GetMaxX() * 3 / 4,
-		GetMaxY() * 2 / 3,
+		GetMaxX() * 1 / 8 + 1,
+		GetMaxY() * 1 / 6 + 1,
+		GetMaxX() * 5 / 8,
+		GetMaxY() * 3 / 6,
 		0, BTN_DRAW, NULL, "Button", NULL);
 
 	drawnOnce = FALSE;
