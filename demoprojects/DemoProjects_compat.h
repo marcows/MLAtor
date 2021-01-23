@@ -30,7 +30,7 @@
   #define COMPAT_GENERAL_EVENTS_HOOK // for rendering the animated splash screen and random fade effect
   #define COMPAT_TICK_COUNTER
   #define COMPAT_TICK_COUNTER_FACTOR 8
-  #define USE_DOUBLE_BUFFERING
+  //#define USE_DOUBLE_BUFFERING // does not work properly
 
 #elif defined(TARGET_ObjectLayerPalette)
   #define GFX_PICTAIL_LCC
