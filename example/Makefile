@@ -1,5 +1,7 @@
 TARGET := example
 
+USE_DOUBLE_BUFFERING = x
+
 GENERATED_DIR = generated
 BUILD_DIR = build
 
@@ -10,6 +12,13 @@ SOURCES := \
 
 CFLAGS := \
 	-DMLATOR_WINDOW_TITLE="MLAtor - Example"
+
+ifdef USE_DOUBLE_BUFFERING
+CFLAGS += -DUSE_DOUBLE_BUFFERING
+else
+# dummy macro definition for non-existent function
+CFLAGS += -D"GetDrawBufferAddress()=0"
+endif
 
 LDFLAGS := \
 

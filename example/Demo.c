@@ -120,8 +120,13 @@ static WORD CopyButtonText(void)
 	srcOffset = (DWORD)(srcY * (DWORD)DISP_HOR_RESOLUTION) + srcX;
 	dstOffset = (DWORD)(dstY * (DWORD)DISP_HOR_RESOLUTION) + dstX;
 
-	if (!CopyBlock(0, 0, srcOffset, dstOffset, width, height))
+	if (!CopyBlock(GetDrawBufferAddress(), GetDrawBufferAddress(), srcOffset, dstOffset, width, height))
 		return 0;
+
+	#ifdef USE_DOUBLE_BUFFERING
+	InvalidateRectangle(appDstX, appDstY, appDstX + appWidth - 1, appDstY + appHeight - 1);
+	RequestDisplayUpdate();
+	#endif
 
 	return 1;
 }
