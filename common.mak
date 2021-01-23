@@ -32,6 +32,7 @@ PROGRAM := $(TARGET)$(X)
 
 SOURCES += \
 	MLA_glue/ExternalMemory.c \
+	sdl/TimeDelay_sdl.c \
 	sdl/DisplayDriver_sdl.c \
 	sdl/InputDriver_sdl.c
 

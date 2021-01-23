@@ -2,7 +2,6 @@
 #include "Graphics/Graphics.h"
 #include <SDL.h>
 
-#include "DisplayDriver_sdl.h"
 #include "TouchScreen.h"
 
 char _time_str[16] = "                ";
@@ -60,35 +59,6 @@ SHORT TouchGetX(void)
 		return -1; // not pressed
 }
 #endif
-
-void DelayMs(UINT16 ms)
-{
-	Uint32 timeout;
-
-#ifdef COMPAT_GENERAL_EVENTS_HOOK
-	SDL_Event event;
-#endif
-
-	// Already set the timeout here, then the duration of the event polling
-	// is not added additionally.
-	timeout = SDL_GetTicks() + ms;
-
-#ifdef COMPAT_GENERAL_EVENTS_HOOK
-	while (SDL_PollEvent(&event))
-		HandleGeneralEvent(&event);
-#endif
-
-	// perform the delay
-	if (ms == 0) {
-		// no delay
-	} else if (ms <= 30) {
-		// active waiting to improve accuracy with short delays
-		while (!SDL_TICKS_PASSED(SDL_GetTicks(), timeout)) { }
-	} else {
-		// passive waiting, inaccuracy is system dependent
-		SDL_Delay(ms);
-	}
-}
 
 /* this hook is invoked periodically at nonconstant intervals */
 void PeriodicHook(void)
