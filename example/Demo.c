@@ -1,5 +1,6 @@
 #include "GenericTypeDefs.h"
 #include "Graphics/Graphics.h"
+#include "TimeDelay.h"
 
 #ifdef USE_TRANSITION_EFFECTS
 #include "Graphics/Transitions.h"
@@ -9,7 +10,7 @@
 
 #define ID_BUTTON 0
 
-static BOOL drawnOnce;
+static BYTE drawDelayCnt;
 static BOOL showDecoration, showDecorationPrev;
 
 static WORD DrawOrHideDecoration(void)
@@ -148,7 +149,7 @@ void CreateDemo(void)
 		GetMaxY() * 3 / 6,
 		0, BTN_DRAW, NULL, "Button", NULL);
 
-	drawnOnce = FALSE;
+	drawDelayCnt = 0;
 	showDecoration = FALSE;
 	showDecorationPrev = TRUE; // force redraw
 }
@@ -196,10 +197,13 @@ WORD DemoMsgCallback(WORD objMsg, OBJ_HEADER *pObj, GOL_MSG *pMsg)
 
 WORD DemoDrawCallback(void)
 {
-	if (!drawnOnce) {
+	if (drawDelayCnt < 20) {
+		drawDelayCnt++;
+		DelayMs(50);
+	} else if (drawDelayCnt == 20) {
 		if (!CopyButtonText())
 			return 0;
-		drawnOnce = TRUE;
+		drawDelayCnt++;
 	}
 
 	if (!DrawOrHideDecoration())
