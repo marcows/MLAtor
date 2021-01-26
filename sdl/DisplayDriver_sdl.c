@@ -177,11 +177,11 @@ static SDL_Rect GetRectFromNativeData(DWORD offset, WORD width, WORD height)
  *
  *     DISP_ORIENTATION=0          DISP_ORIENTATION=90        DISP_ORIENTATION=180        DISP_ORIENTATION=270
  * o------------------------+  o------------------------+  o------------------------+  o------------------------x
- * |                        |  |                        |  |                        |  |    +---x               |
+ * |                        |  |                        |  |                        |  |    o---x               |
  * |                        |  |                        |  |               o-----+  |  |    | A |               |
  * |                        |  |                        |  |               | CBA |  |  |    | B |               |
  * |                        |  |               o---+    |  |               +-----x  |  |    | C |               |
- * |  o-----+               |  |               | C |    |  |                        |  |    +---o               |
+ * |  o-----+               |  |               | C |    |  |                        |  |    +---+               |
  * |  | ABC |               |  |               | B |    |  |                        |  |                        |
  * |  +-----+               |  |               | A |    |  |                        |  |                        |
  * |                        |  |               x---+    |  |                        |  |                        |
