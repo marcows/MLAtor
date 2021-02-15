@@ -15,7 +15,7 @@
   #define COMPAT_GENERAL_EVENTS_HOOK // for rendering anything at all and response on user input
 
 #elif defined(TARGET_MultiApp)
-  #define COMPAT_GENERAL_EVENTS_HOOK // for rendering the animated splash screen and random fade effect
+  #define COMPAT_GENERAL_EVENTS_HOOK // for rendering the random fade effect
   #define COMPAT_TICK_COUNTER
   #define COMPAT_TICK_COUNTER_FACTOR 1
   #define COMPAT_ADC_POTENTIOMETER

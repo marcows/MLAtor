@@ -567,7 +567,7 @@ WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, W
 		return 1;
 	}
 
-	ScheduleScreenUpdate();
+	ScreenUpdate();
 	return 1;
 }
 
