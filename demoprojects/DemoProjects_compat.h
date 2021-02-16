@@ -12,10 +12,10 @@
   #define Screen2_1BPP_Palette_SIZE Screen_1BPP_Palette_SIZE
 
 #elif defined(TARGET_ExternalMemory)
-  #define COMPAT_GENERAL_EVENTS_HOOK
+  #define COMPAT_GENERAL_EVENTS_HOOK // for rendering anything at all and response on user input
 
 #elif defined(TARGET_MultiApp)
-  #define COMPAT_GENERAL_EVENTS_HOOK // for rendering the splash screen
+  #define COMPAT_GENERAL_EVENTS_HOOK // for rendering the animated splash screen and random fade effect
   #define COMPAT_TICK_COUNTER
   #define COMPAT_TICK_COUNTER_FACTOR 1
   #define COMPAT_ADC_POTENTIOMETER
@@ -27,14 +27,14 @@
 
 #elif defined(TARGET_ObjectLayer)
   #define MEB_BOARD
-  #define COMPAT_GENERAL_EVENTS_HOOK // for rendering the splash screen
+  #define COMPAT_GENERAL_EVENTS_HOOK // for rendering the animated splash screen and random fade effect
   #define COMPAT_TICK_COUNTER
   #define COMPAT_TICK_COUNTER_FACTOR 8
   #define USE_DOUBLE_BUFFERING
 
 #elif defined(TARGET_ObjectLayerPalette)
   #define GFX_PICTAIL_LCC
-  #define COMPAT_GENERAL_EVENTS_HOOK // for rendering the splash screen
+  #define COMPAT_GENERAL_EVENTS_HOOK // for rendering the animated splash screen and random fade effect
   #define COMPAT_TICK_COUNTER
   #define COMPAT_TICK_COUNTER_FACTOR 8
 
@@ -45,7 +45,7 @@
   #define DISP_VER_RESOLUTION 272
 
 #elif defined(TARGET_PrimitiveLayer)
-  #define COMPAT_GENERAL_EVENTS_HOOK
+  #define COMPAT_GENERAL_EVENTS_HOOK // for rendering anything at all and response on user input
 #endif
 
 /* display layout, normally defined in HardwareProfile.h */
