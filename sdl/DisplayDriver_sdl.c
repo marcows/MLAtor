@@ -366,12 +366,6 @@ void ResetDevice(void)
 	#endif
 
 	SetRenderTarget(texture);
-
-	SetColor(BLACK);
-
-	ActivateCurrentColor();
-	SDL_RenderClear(renderer);
-	ScreenUpdate();
 }
 
 void PutPixel(SHORT x, SHORT y)
