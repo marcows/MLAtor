@@ -60,6 +60,7 @@ extern WORD PendingLength;
 
 #ifdef USE_DOUBLE_BUFFERING
 BYTE blInvalidateAll;
+// always false, never pending
 volatile BYTE blDisplayUpdatePending;
 #endif
 
@@ -67,8 +68,14 @@ volatile BYTE blDisplayUpdatePending;
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 static SDL_Texture *texture;
+static SDL_Texture *framebufTexture;
 static SDL_PixelFormat *pixfmt;
 static Uint32 redrawEvent;
+
+#ifdef USE_DOUBLE_BUFFERING
+#define IsDoubleBufferingEnabled() (texture != framebufTexture)
+static SDL_Texture *drawbufTexture;
+#endif
 
 #ifdef USE_PALETTE
 static SDL_Palette *palette;
@@ -111,8 +118,13 @@ static void Cleanup(void)
 	if (pixfmt != NULL)
 		SDL_FreeFormat(pixfmt);
 
-	if (texture != NULL)
-		SDL_DestroyTexture(texture);
+	#ifdef USE_DOUBLE_BUFFERING
+	if (drawbufTexture != NULL)
+		SDL_DestroyTexture(drawbufTexture);
+	#endif
+
+	if (framebufTexture != NULL)
+		SDL_DestroyTexture(framebufTexture);
 
 	if (renderer != NULL)
 		SDL_DestroyRenderer(renderer);
@@ -216,9 +228,15 @@ static SDL_Rect GetApplicationRect(SDL_Rect nativeRect)
 	return appRect;
 }
 
-/* For performance reasons, the screen should not be updated after each drawing
+/*
+ * Schedule the screen update.
+ *
+ * For performance reasons, the screen should not be updated after each drawing
  * of even a single pixel, but scheduled for the next event handling.
- * It would cause very slow drawing when updated directly in PutPixel(). */
+ * It would cause very slow drawing when updated directly in PutPixel().
+ *
+ * Only used with disabled double buffering (direct screen drawing).
+ */
 static void ScheduleScreenUpdate(void)
 {
 	if (!SDL_HasEvent(redrawEvent)) {
@@ -229,7 +247,7 @@ static void ScheduleScreenUpdate(void)
 }
 
 /*
- * Update the screen with the currently rendered content.
+ * Update the screen with the currently rendered content from frame buffer.
  *
  * The texture contains the rendered content. To copy that content to the
  * screen the current rendering target has to be set to the default first.
@@ -239,7 +257,7 @@ static void ScreenUpdate(void)
 {
 	SetRenderTarget(NULL);
 
-	if (SDL_RenderCopy(renderer, texture, NULL, NULL)) {
+	if (SDL_RenderCopy(renderer, framebufTexture, NULL, NULL)) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not copy the texture to the screen rendering target: %s\n", SDL_GetError());
 	}
 	SDL_RenderPresent(renderer);
@@ -298,12 +316,21 @@ void ResetDevice(void)
 		w_pixfmtVal = SDL_PIXELFORMAT_RGB888;
 	}
 
-	texture = SDL_CreateTexture(renderer, w_pixfmtVal, SDL_TEXTUREACCESS_TARGET,
+	framebufTexture = SDL_CreateTexture(renderer, w_pixfmtVal, SDL_TEXTUREACCESS_TARGET,
 			GetMaxX() + 1, GetMaxY() + 1);
-	if (texture == NULL) {
-		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not create texture: %s\n", SDL_GetError());
+	if (framebufTexture == NULL) {
+		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not create frame buffer texture: %s\n", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
+
+	#ifdef USE_DOUBLE_BUFFERING
+	drawbufTexture = SDL_CreateTexture(renderer, w_pixfmtVal, SDL_TEXTUREACCESS_TARGET,
+			GetMaxX() + 1, GetMaxY() + 1);
+	if (drawbufTexture == NULL) {
+		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Could not create draw buffer texture: %s\n", SDL_GetError());
+		exit(EXIT_FAILURE);
+	}
+	#endif
 
 	#if (COLOR_DEPTH == 1)
 	pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_INDEX1LSB);
@@ -365,6 +392,14 @@ void ResetDevice(void)
 	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
 	#endif
 
+	#ifdef USE_DOUBLE_BUFFERING
+	blInvalidateAll = 1;
+	blDisplayUpdatePending = 0;
+	texture = drawbufTexture;
+	#else
+	texture = framebufTexture;
+	#endif
+
 	SetRenderTarget(texture);
 }
 
@@ -372,7 +407,11 @@ void PutPixel(SHORT x, SHORT y)
 {
 	ActivateCurrentColor();
 	SDL_RenderDrawPoint(renderer, x, y);
-	ScheduleScreenUpdate();
+
+	#ifdef USE_DOUBLE_BUFFERING
+	if (!IsDoubleBufferingEnabled())
+	#endif
+		ScheduleScreenUpdate();
 }
 
 GFX_COLOR GetPixel(SHORT x, SHORT y)
@@ -527,41 +566,121 @@ void StartVBlankInterrupt(void)
 #ifdef USE_DOUBLE_BUFFERING
 void SwitchOnDoubleBuffering(void)
 {
+	if (!IsDoubleBufferingEnabled()) {
+		blInvalidateAll = 1;
+
+		texture = drawbufTexture;
+		SetRenderTarget(drawbufTexture);
+	}
 }
 
 void SwitchOffDoubleBuffering(void)
 {
+	if (IsDoubleBufferingEnabled()) {
+		UpdateDisplayNow();
+
+		texture = framebufTexture;
+		SetRenderTarget(framebufTexture);
+	}
 }
 
 void InvalidateRectangle(WORD left, WORD top, WORD right, WORD bottom)
 {
+	if (blInvalidateAll == 1 || !IsDoubleBufferingEnabled())
+		return;
+
+	blInvalidateAll = 1; // TODO: implement properly, simplified for now
 }
 
 void RequestDisplayUpdate(void)
 {
+	UpdateDisplayNow();
 }
 
 void UpdateDisplayNow(void)
 {
+	if (!IsDoubleBufferingEnabled())
+		return;
+
+	if (blInvalidateAll == 0)
+		return;
+
+	SetRenderTarget(framebufTexture);
+
+	if (blInvalidateAll == 1) {
+		blInvalidateAll = 0;
+		if (SDL_RenderCopy(renderer, drawbufTexture, NULL, NULL)) {
+			SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not copy the draw buffer to the frame buffer: %s\n", SDL_GetError());
+		}
+	}
+
+	ScreenUpdate();
+}
+
+DWORD GetDrawBufferAddress(void)
+{
+	return 0xDBFFADD; // dummy value
+}
+
+DWORD GetFrameBufferAddress(void)
+{
+	return 0xFBFFADD; // dummy value
 }
 #endif
 
-/* This function currently only works within a single display buffer, srcAddr
- * and dstAddr are unused. */
 WORD CopyBlock(DWORD srcAddr, DWORD dstAddr, DWORD srcOffset, DWORD dstOffset, WORD width, WORD height)
 {
 	SDL_Rect srcRect, dstRect;
+	SDL_Texture *srcTexture;
+
+	#ifdef USE_DOUBLE_BUFFERING
+	SDL_Texture *dstTexture;
+
+	// set srcTexture according to srcAddr
+	if (srcAddr == GetFrameBufferAddress()) {
+		srcTexture = framebufTexture;
+	} else if (srcAddr == GetDrawBufferAddress()) {
+		srcTexture = drawbufTexture;
+	} else {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Invalid source address, has to be set to draw or frame buffer.");
+		return 1;
+	}
+
+	// set dstTexture according to dstAddr
+	if (dstAddr == GetFrameBufferAddress()) {
+		dstTexture = framebufTexture;
+	} else if (dstAddr == GetDrawBufferAddress()) {
+		dstTexture = drawbufTexture;
+	} else {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Invalid destination address, has to be set to draw or frame buffer.");
+		return 1;
+	}
+
+	// temporarily switch rendering target for copying the block
+	SetRenderTarget(dstTexture);
+	#else
+	if (srcAddr != dstAddr)
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Address parameters are unused, but different: 0x%x 0x%x\n", srcAddr, dstAddr);
+
+	srcTexture = framebufTexture;
+	#endif
 
 	srcRect = GetApplicationRect(GetRectFromNativeData(srcOffset, width, height));
 	dstRect = GetApplicationRect(GetRectFromNativeData(dstOffset, width, height));
 
-	// texture and current rendering target are the same
-	if (SDL_RenderCopy(renderer, texture, &srcRect, &dstRect) != 0) {
+	if (SDL_RenderCopy(renderer, srcTexture, &srcRect, &dstRect) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not copy the texture to the renderer: %s\n", SDL_GetError());
 		return 1;
 	}
 
-	ScreenUpdate();
+	#ifdef USE_DOUBLE_BUFFERING
+	// restore rendering target
+	SetRenderTarget(texture);
+
+	if (dstAddr == GetFrameBufferAddress())
+	#endif
+		ScreenUpdate();
+
 	return 1;
 }
 
@@ -587,7 +706,12 @@ WORD Bar(SHORT left, SHORT top, SHORT right, SHORT bottom)
 
 	ActivateCurrentColor();
 	SDL_RenderFillRect(renderer, &rect);
-	ScheduleScreenUpdate();
+
+	#ifdef USE_DOUBLE_BUFFERING
+	if (!IsDoubleBufferingEnabled())
+	#endif
+		ScheduleScreenUpdate();
+
 	return 1;
 }
 
